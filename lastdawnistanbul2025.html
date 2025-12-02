@@ -318,10 +318,10 @@
             transform: translate(-50%, -50%);
             background: #0a1a0a;
             border: 3px solid #00ff41;
-            padding: 40px;
+            padding: 50px;
             border-radius: 10px;
             z-index: 1000;
-            max-width: 500px;
+            max-width: 600px;
             max-height: 80vh;
             overflow-y: auto;
             box-shadow: 0 0 50px rgba(0, 255, 65, 0.5);
@@ -351,7 +351,7 @@
             border: 1px solid #00ff41;
             padding: 12px;
             margin: 12px 0;
-            max-height: 120px;
+            max-height: 180px;
             overflow-y: auto;
             font-size: 0.85em;
         }
@@ -568,7 +568,7 @@
                 </div>
             </div>
             
-            <h2>CURE PROGRESS</h2>
+            <h2>CURE PROGRESS <span id="curePercent" style="float: right; font-size: 0.9em;">0%</span></h2>
             <div class="progress-bar">
                 <div class="progress-fill" id="cureProgress" style="width: 0%"></div>
                 <div class="progress-text" id="cureText">Cure: 0/100</div>
@@ -1243,6 +1243,7 @@
             const curePercent = Math.min(100, (gameState.cureProgress / 100) * 100);
             document.getElementById('cureProgress').style.width = curePercent + '%';
             document.getElementById('cureText').textContent = `Cure: ${gameState.cureProgress}/100`;
+            document.getElementById('curePercent').textContent = `${Math.floor(curePercent)}%`;
             
             // Update day title
             document.getElementById('dayTitle').textContent = `DAY ${gameState.day} - KARAKÖY`;
