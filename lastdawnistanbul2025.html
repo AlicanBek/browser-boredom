@@ -1403,7 +1403,7 @@
             report += `<p><strong>Food consumed:</strong> ${foodNeeded}</p>`;
             
             // Display final resource counts
-            report += `<p style="border-top: 1px solid #00ff41; padding-top: 6px; margin-top: 6px;"><strong>Resources:</strong> Scrap: ${gameState.scrap} | Food: ${gameState.food} | Ammo: ${gameState.ammo} | Medical: ${gameState.medical}</p>`;
+            report += `<p style="border-top: 1px solid #00ff41; padding-top: 6px; margin-top: 6px;"><strong>Current resources:</strong> Scrap: ${gameState.scrap} | Food: ${gameState.food} | Ammo: ${gameState.ammo} | Medical: ${gameState.medical}</p>`;
             
             // Check for starvation
             if (gameState.food < 0) {
@@ -1599,7 +1599,8 @@
             document.getElementById('prepInfo').innerHTML = `
                 <p>Night ${gameState.day} approaching: ${zombieCount} zombies expected</p>
                 <p>Defenders ready: ${defenders} (${gameState.sickSurvivors} sick cannot fight)</p>
-                <p>Current resources: Scrap: ${gameState.scrap}, Medical: ${gameState.medical}</p>
+                <p>Current resources: Scrap: ${gameState.scrap} | Food: ${gameState.food} | Ammo: ${gameState.ammo} | Medical: ${gameState.medical}</p>
+            
             `;
             
             // Update combat item counts
