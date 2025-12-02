@@ -33,7 +33,7 @@
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
-            max-height: 700px;
+            height: 750px;
             position: relative;
             overflow: hidden;
             display: flex;
@@ -43,7 +43,7 @@
         .screen {
             display: none;
             animation: fadeIn 0.5s;
-            flex: 1;
+            height: 680px;
             overflow-y: auto;
             padding-right: 10px;
         }
@@ -85,10 +85,10 @@
         
         h2 {
             color: #00ff41;
-            margin: 8px 0;
-            font-size: 1em;
+            margin: 6px 0;
+            font-size: 0.95em;
             border-bottom: 1px solid #00ff41;
-            padding-bottom: 4px;
+            padding-bottom: 3px;
         }
         
         .story-text {
@@ -139,16 +139,16 @@
             background: linear-gradient(to right, #00cc33, #00ff41);
             color: #0a1a0a;
             border: none;
-            padding: 8px 16px;
+            padding: 6px 12px;
             font-family: inherit;
-            font-size: 0.9em;
+            font-size: 0.85em;
             font-weight: bold;
             cursor: pointer;
-            margin: 4px;
+            margin: 3px;
             border-radius: 2px;
             transition: all 0.3s;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
         
         button:hover:not(:disabled) {
@@ -166,16 +166,16 @@
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 8px;
-            margin: 10px 0;
+            gap: 6px;
+            margin: 6px 0;
         }
         
         .resource-display {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 10px;
-            margin: 15px 0;
-            padding: 12px;
+            gap: 8px;
+            margin: 8px 0;
+            padding: 8px;
             background: rgba(0, 255, 65, 0.05);
             border: 1px solid #00ff41;
             border-radius: 5px;
@@ -186,12 +186,12 @@
         }
         
         .resource-label {
-            font-size: 0.85em;
+            font-size: 0.75em;
             opacity: 0.8;
         }
         
         .resource-value {
-            font-size: 1.1em;
+            font-size: 1em;
             font-weight: bold;
             color: #00ff41;
         }
@@ -208,34 +208,35 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin: 8px 0;
-            padding: 8px;
+            margin: 6px 0;
+            padding: 6px;
             background: rgba(0, 255, 65, 0.05);
             border: 1px solid #00ff41;
             border-radius: 5px;
+            font-size: 0.9em;
         }
         
         .assignment-controls {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         
         .assignment-value {
-            font-size: 1em;
+            font-size: 0.9em;
             font-weight: bold;
-            min-width: 30px;
+            min-width: 25px;
             text-align: center;
         }
         
         .progress-bar {
             width: 100%;
-            height: 18px;
+            height: 14px;
             background: #0a1a0a;
             border: 2px solid #00ff41;
             border-radius: 5px;
             overflow: hidden;
-            margin: 12px 0;
+            margin: 8px 0;
             position: relative;
         }
         
@@ -273,6 +274,42 @@
             justify-content: center;
         }
         
+        .daily-routine-indicator {
+            position: absolute;
+            top: 20px;
+            right: 65px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.85em;
+            z-index: 10;
+        }
+        
+        .routine-phase-text {
+            color: #00ff41;
+            font-weight: bold;
+            min-width: 65px;
+            text-align: right;
+        }
+        
+        .routine-dots {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .routine-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: 1px solid #00ff41;
+            transition: all 0.3s;
+        }
+        
+        .routine-dot.active {
+            background: #00ff41;
+            box-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+        }
+        
         .popup {
             display: none;
             position: fixed;
@@ -281,7 +318,7 @@
             transform: translate(-50%, -50%);
             background: #0a1a0a;
             border: 3px solid #00ff41;
-            padding: 30px;
+            padding: 40px;
             border-radius: 10px;
             z-index: 1000;
             max-width: 500px;
@@ -441,9 +478,10 @@
         .milestone-tracker {
             background: rgba(0, 255, 65, 0.05);
             border: 1px solid #00ff41;
-            padding: 10px;
-            margin: 10px 0;
+            padding: 6px;
+            margin: 6px 0;
             border-radius: 5px;
+            font-size: 0.85em;
         }
         
         .milestone-progress {
@@ -458,6 +496,18 @@
     <div id="gameContainer">
         <!-- Help Button -->
         <button class="help-button" onclick="showHelp()" style="display: none;">ⓘ</button>
+        
+        <!-- Daily Routine Indicator -->
+        <div class="daily-routine-indicator" id="dailyRoutineIndicator" style="display: none;">
+            <div class="routine-phase-text" id="phaseText">Morning</div>
+            <div class="routine-dots">
+                <div class="routine-dot active" id="dot0"></div>
+                <div class="routine-dot" id="dot1"></div>
+                <div class="routine-dot" id="dot2"></div>
+                <div class="routine-dot" id="dot3"></div>
+                <div class="routine-dot" id="dot4"></div>
+            </div>
+        </div>
         
         <!-- Welcome Screen -->
         <div id="welcomeScreen" class="screen active">
@@ -491,43 +541,6 @@
         <div id="gameScreen" class="screen">
             <h2 id="dayTitle">DAY 1 - KARAKÖY COMPOUND</h2>
             
-            <div style="background: rgba(0, 255, 65, 0.1); border: 1px solid #00ff41; padding: 8px; border-radius: 5px; margin-bottom: 10px;">
-                <div style="font-size: 0.75em; color: #00ff41; margin-bottom: 4px; text-align: center;">
-                    <strong>DAILY ROUTINE</strong>
-                </div>
-                <div style="display: flex; justify-content: space-around; font-size: 0.75em; text-align: center;">
-                    <div>
-                        <div style="color: #00ff41;">📋</div>
-                        <div style="font-size: 0.9em;">Morning</div>
-                        <div style="font-size: 0.75em; color: #00cc33;">Assign</div>
-                    </div>
-                    <div>→</div>
-                    <div>
-                        <div style="color: #ffff00;">📊</div>
-                        <div style="font-size: 0.9em;">Evening</div>
-                        <div style="font-size: 0.75em; color: #00cc33;">Report</div>
-                    </div>
-                    <div>→</div>
-                    <div>
-                        <div style="color: #ff9900;">🔧</div>
-                        <div style="font-size: 0.9em;">Prep</div>
-                        <div style="font-size: 0.75em; color: #00cc33;">Craft</div>
-                    </div>
-                    <div>→</div>
-                    <div>
-                        <div style="color: #ff3333;">🌙</div>
-                        <div style="font-size: 0.9em;">Night</div>
-                        <div style="font-size: 0.75em; color: #00cc33;">Battle</div>
-                    </div>
-                    <div>→</div>
-                    <div>
-                        <div style="color: #9966ff;">📈</div>
-                        <div style="font-size: 0.9em;">Summary</div>
-                        <div style="font-size: 0.75em; color: #00cc33;">Next Day</div>
-                    </div>
-                </div>
-            </div>
-            
             <div class="resource-display">
                 <div class="resource-item">
                     <div class="resource-label">Scrap</div>
@@ -548,10 +561,10 @@
             </div>
             
             <div class="milestone-tracker" id="milestoneTracker" style="display: none;">
-                <div>Scavenging Progress</div>
-                <div class="milestone-progress">
-                    <span id="scavProgress">0/5</span>
-                    <span id="nextMilestone">Next: Immune Survivor</span>
+                <div style="font-size: 0.85em; margin-bottom: 4px;">Scavenging Progress</div>
+                <div class="milestone-progress" style="gap: 10px;">
+                    <span id="scavProgress" style="font-size: 0.8em;">0/5</span>
+                    <span id="nextMilestone" style="font-size: 0.8em;">Next: Immune</span>
                 </div>
             </div>
             
@@ -561,11 +574,8 @@
                 <div class="progress-text" id="cureText">Cure: 0/100</div>
             </div>
             
-            <div id="survivorInfo" style="margin: 20px 0;">
-                <div>Survivors: <span id="totalSurvivors">3</span>/12 
-                (Healthy: <span id="healthySurvivors">3</span>, 
-                Injured: <span id="injuredSurvivors">0</span>, 
-                Sick: <span id="sickSurvivors">0</span>)</div>
+            <div id="survivorInfo" style="margin: 8px 0; font-size: 0.9em;">
+                <div>Survivors: <span id="totalSurvivors">3</span>/12 (H:<span id="healthySurvivors">3</span> I:<span id="injuredSurvivors">0</span> S:<span id="sickSurvivors">0</span>)</div>
             </div>
             
             <div id="assignmentSection">
@@ -603,8 +613,8 @@
                     </div>
                 </div>
                 
-                <div style="margin: 20px 0; text-align: center;">
-                    Total Assigned: <span id="totalAssigned">0</span>/<span id="availableSurvivors">3</span>
+                <div style="margin: 8px 0; text-align: center; font-size: 0.9em;">
+                    Total: <span id="totalAssigned">0</span>/<span id="availableSurvivors">3</span>
                 </div>
                 
                 <div class="button-group">
@@ -930,7 +940,10 @@
             milestones: {
                 immuneSurvivorFound: false,
                 labEquipmentFound: false
-            }
+            },
+            
+            // Daily routine phase tracking
+            currentPhase: 0  // 0=Morning, 1=Evening, 2=Prep, 3=Night, 4=Summary
         };
 
         // ============================================================================
@@ -1163,18 +1176,45 @@
             document.getElementById('storyScreen').classList.remove('active');
             document.getElementById('gameScreen').classList.add('active');
             document.querySelector('.help-button').style.display = 'block';
+            document.getElementById('dailyRoutineIndicator').style.display = 'flex';
             
             // Initialize starting survivors with unique names
             initializeSurvivors();
             
             // Initialize Day 1 using constants
             gameState.day = 1;
+            gameState.currentPhase = 0;  // Start at Morning
             gameState.resources.food = GAME_CONSTANTS.STARTING_FOOD;
             gameState.resources.scrap = GAME_CONSTANTS.STARTING_SCRAP;
             gameState.resources.ammo = GAME_CONSTANTS.STARTING_AMMO;
             gameState.resources.medical = GAME_CONSTANTS.STARTING_MEDICAL;
             
             updateDisplay();
+            updateDailyRoutineIndicator();
+        }
+        
+        function updateDailyRoutineIndicator() {
+            const phases = ['Morning', 'Evening', 'Prep', 'Night', 'Summary'];
+            const currentPhase = gameState.currentPhase;
+            
+            // Update phase text
+            document.getElementById('phaseText').textContent = phases[currentPhase];
+            
+            // Update dots
+            for (let i = 0; i < 5; i++) {
+                const dot = document.getElementById(`dot${i}`);
+                if (i <= currentPhase) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            }
+        }
+        
+        function setDailyPhase(phase) {
+            // phase: 0=Morning, 1=Evening, 2=Prep, 3=Night, 4=Summary
+            gameState.currentPhase = phase;
+            updateDailyRoutineIndicator();
         }
         
         function updateDisplay() {
@@ -1438,6 +1478,7 @@
             // Show evening report
             document.getElementById('gameScreen').classList.remove('active');
             document.getElementById('eveningScreen').classList.add('active');
+            setDailyPhase(1);  // Evening phase
             document.getElementById('eveningReport').innerHTML = report;
         }
         
@@ -1540,6 +1581,7 @@
         function goToCombatPrep() {
             document.getElementById('eveningScreen').classList.remove('active');
             document.getElementById('combatPrepScreen').classList.add('active');
+            setDailyPhase(2);  // Prep phase
             
             // Reset daily trade limit
             gameState.dailyTradeUsed = 0;
@@ -1625,6 +1667,7 @@
         function startCombat() {
             document.getElementById('combatPrepScreen').classList.remove('active');
             document.getElementById('combatScreen').classList.add('active');
+            setDailyPhase(3);  // Night phase
             
             gameState.currentZombies = calculateZombieCount();
             gameState.defenders = gameState.healthySurvivors + gameState.injuredSurvivors;
@@ -1838,6 +1881,7 @@
             setTimeout(() => {
                 document.getElementById('combatScreen').classList.remove('active');
                 document.getElementById('nightSummaryScreen').classList.add('active');
+                setDailyPhase(4);  // Summary phase
                 
                 document.getElementById('summaryNight').textContent = gameState.day;
                 
@@ -1939,6 +1983,7 @@
 
         // Progress to next day
         gameState.day++;
+        gameState.currentPhase = 0;  // Reset to Morning phase
         
         // Reset assignments
         gameState.scavengeAssigned = 0;
@@ -1961,6 +2006,7 @@
         document.getElementById('gameScreen').classList.add('active');
         
         updateDisplay();
+        updateDailyRoutineIndicator();
     }
     
     function victory() {
