@@ -46,6 +46,7 @@
             height: 680px;
             overflow-y: auto;
             padding-right: 10px;
+            position: relative;
         }
         
         .screen::-webkit-scrollbar {
@@ -527,7 +528,7 @@
                 Only you can save what remains.
             </div>
             <input type="text" id="playerName" placeholder="Enter your name" maxlength="20">
-            <div class="button-group">
+            <div class="button-group bottom">
                 <button onclick="startGame()">BEGIN STORY</button>
             </div>
             <div class="disclaimer">
@@ -541,7 +542,7 @@
         <div id="storyScreen" class="screen">
             <h1>DAY 0 - GALATA TOWER LABORATORY</h1>
             <div class="mission-text" id="storyText"></div>
-            <div class="button-group">
+            <div class="button-group bottom">
                 <button onclick="beginDay1()">CONTINUE</button>
             </div>
         </div>
@@ -626,7 +627,7 @@
                     Total: <span id="totalAssigned">0</span>/<span id="availableSurvivors">3</span>
                 </div>
                 
-                <div class="button-group">
+                <div class="button-group bottom">
                     <button onclick="confirmDay()" id="confirmButton">CONFIRM DAY</button>
                     <button onclick="openTrading()" id="tradeButton" style="display: none;">TRADE RESOURCES</button>
                 </div>
@@ -637,7 +638,7 @@
         <div id="eveningScreen" class="screen">
             <h2 id="eveningTitle">EVENING REPORT</h2>
             <div id="eveningReport"></div>
-            <div class="button-group">
+            <div class="button-group bottom">
                 <button onclick="goToCombatPrep()">CONTINUE TO COMBAT PREP</button>
             </div>
         </div>
@@ -666,13 +667,10 @@
                 </div>
             </div>
             
-            <div class="button-group">
+            <div class="button-group bottom">
                 <button onclick="craftItem('molotov')">CRAFT MOLOTOV<br>(10 scrap + 2 medical)</button>
                 <button onclick="craftItem('grenade')">CRAFT GRENADE<br>(25 scrap + 5 medical)</button>
                 <button onclick="craftItem('revive')">CRAFT REVIVE KIT<br>(15 medical)</button>
-            </div>
-            
-            <div class="button-group">
                 <button onclick="startCombat()">START BATTLE</button>
             </div>
         </div>
@@ -1089,9 +1087,9 @@
         
         // Turkish names
         const turkishNames = {
-            male: ['Mehmet', 'Ahmet', 'Mustafa', 'Emre', 'Can', 'Burak', 'Oğuz', 'Kaan', 'Cem', 'Barış', 
-                   'Deniz', 'Efe', 'Murat', 'Kemal', 'Selim', 'Tarık', 'Umut', 'Volkan', 'Yusuf', 'Zafer'],
-            female: ['Ayşe', 'Elif', 'Zeynep', 'Fatma', 'Esra', 'Ceren', 'Selin', 'Dilara', 'Melis', 'Pelin', 
+            male: ['Mehmet', 'Ahmet', 'Alican', 'Emre', 'Can', 'Burak', 'Oğuz', 'Kaan', 'Cem', 'Barış', 
+                   'Deniz', 'Efe', 'Murat', 'Kemal', 'Mert', 'Turker', 'Umut', 'Volkan', 'Yusuf', 'Zafer'],
+            female: ['Ayşe', 'Elif', 'Zeynep', 'Fatma', 'Esra', 'Cemre', 'Selin', 'Dilara', 'Melis', 'Pelin', 
                      'Seda', 'Gül', 'Naz', 'İrem', 'Aslı', 'Burcu', 'Defne', 'Hande', 'Leyla', 'Nur']
         };
         
@@ -1316,7 +1314,7 @@
             const totalAssigned = gameState.scavengeAssigned + gameState.researchAssigned + 
                                  gameState.buildingAssigned + gameState.restingAssigned;
             
-            if (totalAssigned !== gameState.availableSurvivors) {
+            if (totalAssigned != gameState.availableSurvivors) {
                 alert(`Please assign all ${gameState.availableSurvivors} survivors`);
                 return;
             }
