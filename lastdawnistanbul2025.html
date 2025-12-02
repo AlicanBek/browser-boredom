@@ -1312,9 +1312,9 @@
         
         function confirmDay() {
             const totalAssigned = gameState.scavengeAssigned + gameState.researchAssigned + 
-                                 gameState.buildingAssigned + gameState.restingAssigned;
+                                 gameState.buildingAssigned + gameState.healingAssigned;
             
-            if (totalAssigned != gameState.availableSurvivors) {
+            if (totalAssigned !== gameState.availableSurvivors) {
                 alert(`Please assign all ${gameState.availableSurvivors} survivors`);
                 return;
             }
