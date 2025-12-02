@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Last Dawn: Istanbul</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #0a1a0a;
+            color: #00ff41;
+            font-family: 'Courier Prime', monospace;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        #gameContainer {
+            width: 100%;
+            max-width: 900px;
+            background: linear-gradient(to bottom, #0a1a0a, #051005);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+            min-height: 600px;
+            position: relative;
+        }
+        
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        h1 {
+            text-align: center;
+            color: #00ff41;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+            font-size: 2em;
+            letter-spacing: 3px;
+        }
+        
+        h2 {
+            color: #00ff41;
+            margin: 20px 0;
+            font-size: 1.3em;
+            border-bottom: 1px solid #00ff41;
+            padding-bottom: 10px;
+        }
+        
+        .story-text {
+            text-align: center;
+            margin: 30px 0;
+            color: #00ff41;
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+        
+        .disclaimer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.9em;
+            color: #00cc33;
+            opacity: 0.8;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            max-width: 300px;
+            padding: 12px;
+            background: #0a1a0a;
+            border: 2px solid #00ff41;
+            color: #00ff41;
+            font-family: inherit;
+            font-size: 1.1em;
+            text-align: center;
+            margin: 20px auto;
+            display: block;
+            border-radius: 5px;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+        }
+        
+        button {
+            background: linear-gradient(to right, #00cc33, #00ff41);
+            color: #0a1a0a;
+            border: none;
+            padding: 12px 30px;
+            font-family: inherit;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            border-radius: 5px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 65, 0.4);
+        }
+        
+        button:disabled {
+            background: #1a331a;
+            color: #335533;
+            cursor: not-allowed;
+        }
+        
+        .button-group {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .resource-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(0, 255, 65, 0.05);
+            border: 1px solid #00ff41;
+            border-radius: 5px;
+        }
+        
+        .resource-item {
+            text-align: center;
+        }
+        
+        .resource-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        .resource-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #00ff41;
+        }
+        
+        .resource-value.warning {
+            color: #ffff00;
+        }
+        
+        .resource-value.critical {
+            color: #ff3333;
+        }
+        
+        .survivor-assignment {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(0, 255, 65, 0.05);
+            border: 1px solid #00ff41;
+            border-radius: 5px;
+        }
+        
+        .assignment-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .assignment-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #0a1a0a;
+            border: 2px solid #00ff41;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #00cc33, #00ff41);
+            transition: width 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .progress-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            color: #00ff41;
+            text-shadow: 1px 1px 2px #0a1a0a;
+        }
+        
+        .help-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 1.2em;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #0a1a0a;
+            border: 3px solid #00ff41;
+            padding: 30px;
+            border-radius: 10px;
+            z-index: 1000;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 0 50px rgba(0, 255, 65, 0.5);
+        }
+        
+        .popup.active {
+            display: block;
+        }
+        
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 999;
+        }
+        
+        .popup-overlay.active {
+            display: block;
+        }
+        
+        .combat-log {
+            background: rgba(0, 255, 65, 0.05);
+            border: 1px solid #00ff41;
+            padding: 15px;
+            margin: 20px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.9em;
+        }
+        
+        .combat-message {
+            margin: 5px 0;
+            animation: slideIn 0.3s;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .zombie-display {
+            font-size: 1.5em;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .wall-health {
+            margin: 20px 0;
+        }
+        
+        .health-bar {
+            width: 100%;
+            height: 20px;
+            background: #1a0a0a;
+            border: 1px solid #00ff41;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .health-fill {
+            height: 100%;
+            transition: width 0.3s;
+        }
+        
+        .health-good { background: #00ff41; }
+        .health-warning { background: #ffff00; }
+        .health-critical { background: #ff3333; }
+        
+        .victory-screen {
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .victory-title {
+            font-size: 2.5em;
+            color: #00ff41;
+            margin: 30px 0;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { text-shadow: 0 0 10px rgba(0, 255, 65, 0.5); }
+            50% { text-shadow: 0 0 30px rgba(0, 255, 65, 0.8); }
+            100% { text-shadow: 0 0 10px rgba(0, 255, 65, 0.5); }
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(0, 255, 65, 0.05);
+            border: 1px solid #00ff41;
+            border-radius: 5px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        @media (max-width: 600px) {
+            #gameContainer {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+            }
+            
+            button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+            
+            .survivor-assignment {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .assignment-controls {
+                margin-top: 10px;
+            }
+        }
+        
+        .trade-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .trade-button {
+            padding: 15px;
+            font-size: 0.9em;
+        }
+        
+        .milestone-tracker {
+            background: rgba(0, 255, 65, 0.05);
+            border: 1px solid #00ff41;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .milestone-progress {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- Help Button -->
+        <button class="help-button" onclick="showHelp()" style="display: none;">ⓘ</button>
+        
+        <!-- Welcome Screen -->
+        <div id="welcomeScreen" class="screen active">
+            <h1>LAST DAWN: ISTANBUL</h1>
+            <div class="story-text">
+                The city has fallen silent.<br>
+                The Bosphorus runs red at dawn.<br>
+                Only you can save what remains.
+            </div>
+            <input type="text" id="playerName" placeholder="Enter your name" maxlength="20">
+            <div class="button-group">
+                <button onclick="startGame()">BEGIN STORY</button>
+            </div>
+            <div class="disclaimer">
+                This is a work of fiction. All events, characters,<br>
+                and scenarios are entirely fictional and have no<br>
+                connection to real-world events or circumstances.
+            </div>
+        </div>
+        
+        <!-- Story Introduction -->
+        <div id="storyScreen" class="screen">
+            <h1>DAY 0 - GALATA TOWER LABORATORY</h1>
+            <div class="story-text" id="storyText"></div>
+            <div class="button-group">
+                <button onclick="beginDay1()">CONTINUE</button>
+            </div>
+        </div>
+        
+        <!-- Main Game Screen -->
+        <div id="gameScreen" class="screen">
+            <h2 id="dayTitle">DAY 1 - KARAKÖY COMPOUND</h2>
+            
+            <div class="resource-display">
+                <div class="resource-item">
+                    <div class="resource-label">Scrap</div>
+                    <div class="resource-value" id="scrapDisplay">0</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-label">Food</div>
+                    <div class="resource-value" id="foodDisplay">0</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-label">Ammo</div>
+                    <div class="resource-value" id="ammoDisplay">0</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-label">Medical</div>
+                    <div class="resource-value" id="medicalDisplay">0</div>
+                </div>
+            </div>
+            
+            <div class="milestone-tracker" id="milestoneTracker" style="display: none;">
+                <div>Scavenging Progress</div>
+                <div class="milestone-progress">
+                    <span id="scavProgress">0/5</span>
+                    <span id="nextMilestone">Next: Immune Survivor</span>
+                </div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="cureProgress" style="width: 0%"></div>
+                <div class="progress-text" id="cureText">Cure: 0/100</div>
+            </div>
+            
+            <div id="survivorInfo" style="margin: 20px 0;">
+                <div>Survivors: <span id="totalSurvivors">3</span>/12 
+                (Healthy: <span id="healthySurvivors">3</span>, 
+                Injured: <span id="injuredSurvivors">0</span>, 
+                Sick: <span id="sickSurvivors">0</span>)</div>
+            </div>
+            
+            <div id="assignmentSection">
+                <h2>Assign Survivors</h2>
+                <div class="survivor-assignment">
+                    <span>Scavenge (Search Eminönü)</span>
+                    <div class="assignment-controls">
+                        <button onclick="adjustAssignment('scavenge', -1)">−</button>
+                        <span class="assignment-value" id="scavengeValue">0</span>
+                        <button onclick="adjustAssignment('scavenge', 1)">+</button>
+                    </div>
+                </div>
+                <div class="survivor-assignment">
+                    <span>Research (Work on cure)</span>
+                    <div class="assignment-controls">
+                        <button onclick="adjustAssignment('research', -1)">−</button>
+                        <span class="assignment-value" id="researchValue">0</span>
+                        <button onclick="adjustAssignment('research', 1)">+</button>
+                    </div>
+                </div>
+                <div class="survivor-assignment">
+                    <span>Building (Fortify walls)</span>
+                    <div class="assignment-controls">
+                        <button onclick="adjustAssignment('building', -1)">−</button>
+                        <span class="assignment-value" id="buildingValue">0</span>
+                        <button onclick="adjustAssignment('building', 1)">+</button>
+                    </div>
+                </div>
+                <div class="survivor-assignment">
+                    <span>Resting (Heal injuries)</span>
+                    <div class="assignment-controls">
+                        <button onclick="adjustAssignment('resting', -1)">−</button>
+                        <span class="assignment-value" id="restingValue">0</span>
+                        <button onclick="adjustAssignment('resting', 1)">+</button>
+                    </div>
+                </div>
+                
+                <div style="margin: 20px 0; text-align: center;">
+                    Total Assigned: <span id="totalAssigned">0</span>/<span id="availableSurvivors">3</span>
+                </div>
+                
+                <div class="button-group">
+                    <button onclick="confirmDay()" id="confirmButton">CONFIRM DAY</button>
+                    <button onclick="openTrading()" id="tradeButton" style="display: none;">TRADE RESOURCES</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Evening Report Screen -->
+        <div id="eveningScreen" class="screen">
+            <h2 id="eveningTitle">EVENING REPORT</h2>
+            <div id="eveningReport"></div>
+            <div class="button-group">
+                <button onclick="goToCombatPrep()">CONTINUE TO COMBAT PREP</button>
+            </div>
+        </div>
+        
+        <!-- Combat Prep Screen -->
+        <div id="combatPrepScreen" class="screen">
+            <h2>COMBAT PREPARATION</h2>
+            <div id="prepInfo"></div>
+            
+            <div class="resource-display" style="margin: 20px 0;">
+                <div class="resource-item">
+                    <div class="resource-label">Molotov</div>
+                    <div class="resource-value" id="molotovCount">0</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-label">Grenade</div>
+                    <div class="resource-value" id="grenadeCount">0</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-label">Surge Blast</div>
+                    <div class="resource-value" id="nukeCount">0</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-label">Revive Kit</div>
+                    <div class="resource-value" id="reviveCount">0</div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button onclick="craftItem('molotov')">CRAFT MOLOTOV<br>(10 scrap + 2 medical)</button>
+                <button onclick="craftItem('grenade')">CRAFT GRENADE<br>(25 scrap + 5 medical)</button>
+                <button onclick="craftItem('revive')">CRAFT REVIVE KIT<br>(15 medical)</button>
+            </div>
+            
+            <div class="button-group">
+                <button onclick="startCombat()">START BATTLE</button>
+            </div>
+        </div>
+        
+        <!-- Combat Screen -->
+        <div id="combatScreen" class="screen">
+            <h2>NIGHT <span id="nightNumber">1</span> - UNDER ATTACK!</h2>
+            
+            <div class="zombie-display">
+                Zombies Remaining: <span id="zombiesRemaining">0</span>
+            </div>
+            
+            <div class="wall-health">
+                <div>Wall Integrity: <span id="wallPercent">100</span>%</div>
+                <div class="health-bar">
+                    <div class="health-fill health-good" id="wallHealthBar" style="width: 100%"></div>
+                </div>
+            </div>
+            
+            <div class="combat-log" id="combatLog"></div>
+            
+            <div class="button-group">
+                <button onclick="useMolotov()" id="molotovButton">USE MOLOTOV (<span id="molotovCombat">0</span>)</button>
+                <button onclick="useGrenade()" id="grenadeButton">USE GRENADE (<span id="grenadeCombat">0</span>)</button>
+                <button onclick="useSurgeBlast()" id="surgeButton">USE SURGE BLAST (<span id="surgeCombat">0</span>)</button>
+            </div>
+        </div>
+        
+        <!-- Night Summary Screen -->
+        <div id="nightSummaryScreen" class="screen">
+            <h2>NIGHT <span id="summaryNight">1</span> - SUMMARY</h2>
+            <div id="nightSummaryContent"></div>
+            <div id="reviveSection" style="display: none;">
+                <h3>Revive Fallen Survivors</h3>
+                <div id="reviveOptions"></div>
+            </div>
+            <div class="button-group">
+                <button onclick="continueTomorrow()">CONTINUE TO NEXT DAY</button>
+            </div>
+        </div>
+        
+        <!-- Victory Screen -->
+        <div id="victoryScreen" class="screen victory-screen">
+            <div class="victory-title">★ ISTANBUL SAVED! ★</div>
+            <div id="victoryText"></div>
+            <div class="stats-grid" id="victoryStats"></div>
+            <div class="button-group">
+                <button onclick="location.reload()">PLAY AGAIN</button>
+            </div>
+        </div>
+        
+        <!-- Game Over Screen -->
+        <div id="gameOverScreen" class="screen">
+            <h1>THE LAST DAWN</h1>
+            <div id="gameOverText"></div>
+            <div class="stats-grid" id="gameOverStats"></div>
+            <div class="button-group">
+                <button onclick="location.reload()">TRY AGAIN</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Popups -->
+    <div class="popup-overlay" id="popupOverlay" onclick="closePopup()"></div>
+    
+    <!-- Help Popup -->
+    <div class="popup" id="helpPopup">
+        <h2>HOW TO PLAY</h2>
+        <p><strong>GOAL:</strong> Create a cure (100 research points) and survive the production phase</p>
+        
+        <h3>DAILY CYCLE:</h3>
+        <ol>
+            <li>Morning - Assign survivors to tasks</li>
+            <li>Evening - Collect resources, see events</li>
+            <li>Prep - Craft combat items</li>
+            <li>Night - Defend against zombies</li>
+            <li>Summary - View results, continue</li>
+        </ol>
+        
+        <h3>RESOURCES:</h3>
+        <ul>
+            <li><strong>Scrap</strong> - Build walls, craft items</li>
+            <li><strong>Food</strong> - Feed survivors (1/day healthy, 2/day sick)</li>
+            <li><strong>Ammo</strong> - Auto-defense (3 per zombie)</li>
+            <li><strong>Medical</strong> - Heal sick/injured, craft items</li>
+        </ul>
+        
+        <h3>COMBAT:</h3>
+        <ul>
+            <li>Defenders auto-shoot zombies</li>
+            <li>Molotovs kill 3 zombies</li>
+            <li>Grenades kill 5 zombies</li>
+            <li>Surge Blast clears all (one-time use)</li>
+        </ul>
+        
+        <div class="button-group">
+            <button onclick="closeHelp()">CLOSE</button>
+        </div>
+    </div>
+    
+    <!-- Trading Popup -->
+    <div class="popup" id="tradePopup">
+        <h2>TRADING POST</h2>
+        <div id="tradeResourceDisplay"></div>
+        <div id="tradeContent"></div>
+        <div class="button-group">
+            <button onclick="closeTrading()">BACK</button>
+        </div>
+    </div>
+    
+    <!-- Trade Specific Resource Popup -->
+    <div class="popup" id="specificTradePopup">
+        <h2 id="specificTradeTitle">GET RESOURCE</h2>
+        <div id="specificTradeResources"></div>
+        <div id="specificTradeOptions"></div>
+        <div class="button-group">
+            <button onclick="closeSpecificTrade()">BACK</button>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            playerName: '',
+            day: 1,
+            gameStartTime: Date.now(),
+            
+            // Resources
+            scrap: 0,
+            food: 0,
+            ammo: 0,
+            medical: 0,
+            
+            // Combat items
+            molotov: 0,
+            grenade: 0,
+            surgeBlast: 0,
+            reviveKit: 0,
+            
+            // Survivors
+            totalSurvivors: 3,
+            healthySurvivors: 3,
+            injuredSurvivors: 0,
+            sickSurvivors: 0,
+            availableSurvivors: 3,
+            
+            // Assignments
+            scavengeAssigned: 0,
+            researchAssigned: 0,
+            buildingAssigned: 0,
+            restingAssigned: 0,
+            
+            // Progress
+            cureProgress: 0,
+            scavengingPoints: 0,
+            wallHealth: 100,
+            
+            // Milestones
+            immuneSurvivorFound: false,
+            tradingUnlocked: false,
+            labEquipmentFound: false,
+            
+            // Combat
+            currentZombies: 0,
+            totalZombiesKilled: 0,
+            defenders: 0,
+            
+            // Tracking
+            daysWithoutMedical: 0,
+            dailyTradeLimit: 50,
+            dailyTradeUsed: 0,
+            
+            // Dead survivors for revival
+            deadSurvivors: [],
+        };
+        
+        // Turkish names
+        const turkishNames = {
+            male: ['Mehmet', 'Ahmet', 'Mustafa', 'Emre', 'Can', 'Burak', 'Oğuz', 'Kaan', 'Cem', 'Barış', 
+                   'Deniz', 'Efe', 'Murat', 'Kemal', 'Selim', 'Tarık', 'Umut', 'Volkan', 'Yusuf', 'Zafer'],
+            female: ['Ayşe', 'Elif', 'Zeynep', 'Fatma', 'Esra', 'Ceren', 'Selin', 'Dilara', 'Melis', 'Pelin', 
+                     'Seda', 'Gül', 'Naz', 'İrem', 'Aslı', 'Burcu', 'Defne', 'Hande', 'Leyla', 'Nur']
+        };
+        
+        // Istanbul locations for flavor text
+        const locations = ['Beyoğlu', 'Eminönü', 'Kadıköy', 'Üsküdar', 'Beşiktaş', 'Sultanahmet', 'Taksim', 'Şişli'];
+        
+        function startGame() {
+            const nameInput = document.getElementById('playerName').value.trim();
+            if (!nameInput) {
+                alert('Please enter your name');
+                return;
+            }
+            
+            gameState.playerName = nameInput;
+            document.getElementById('welcomeScreen').classList.remove('active');
+            document.getElementById('storyScreen').classList.add('active');
+            
+            const storyText = `
+                ${gameState.playerName},<br><br>
+                You were working late in the underground lab beneath Galata Tower when the outbreak began. 
+                The screams from Istiklal Avenue went silent hours ago.<br><br>
+                Your research into the virus might be humanity's last hope. 
+                You have the knowledge to create a cure, but you need time, resources, and survivors.<br><br>
+                The emergency radio crackles:<br>
+                "If anyone's alive... we're fortifying Karaköy dock. Please... we need help."<br><br>
+                Your goal: Develop the cure and save Istanbul.<br>
+                It will take at least 100 research points.
+            `;
+            
+            document.getElementById('storyText').innerHTML = storyText;
+        }
+        
+        function beginDay1() {
+            document.getElementById('storyScreen').classList.remove('active');
+            document.getElementById('gameScreen').classList.add('active');
+            document.querySelector('.help-button').style.display = 'block';
+            
+            // Initialize Day 1
+            gameState.day = 1;
+            gameState.food = 15;
+            gameState.scrap = 25;
+            gameState.ammo = 10;
+            gameState.medical = 5;
+            
+            updateDisplay();
+        }
+        
+        function updateDisplay() {
+            // Update resource display
+            document.getElementById('scrapDisplay').textContent = gameState.scrap;
+            document.getElementById('foodDisplay').textContent = gameState.food;
+            document.getElementById('ammoDisplay').textContent = gameState.ammo;
+            document.getElementById('medicalDisplay').textContent = gameState.medical;
+            
+            // Color code resources
+            updateResourceColor('foodDisplay', gameState.food, 20, 10);
+            updateResourceColor('medicalDisplay', gameState.medical, 10, 5);
+            updateResourceColor('ammoDisplay', gameState.ammo, 20, 10);
+            
+            // Update survivors
+            document.getElementById('totalSurvivors').textContent = gameState.totalSurvivors;
+            document.getElementById('healthySurvivors').textContent = gameState.healthySurvivors;
+            document.getElementById('injuredSurvivors').textContent = gameState.injuredSurvivors;
+            document.getElementById('sickSurvivors').textContent = gameState.sickSurvivors;
+            document.getElementById('availableSurvivors').textContent = gameState.availableSurvivors;
+            
+            // Update cure progress
+            const curePercent = Math.min(100, (gameState.cureProgress / 100) * 100);
+            document.getElementById('cureProgress').style.width = curePercent + '%';
+            document.getElementById('cureText').textContent = `Cure: ${gameState.cureProgress}/100`;
+            
+            // Update day title
+            document.getElementById('dayTitle').textContent = `DAY ${gameState.day} - KARAKÖY COMPOUND`;
+            
+            // Update milestone tracker
+            if (gameState.day > 1) {
+                document.getElementById('milestoneTracker').style.display = 'block';
+                updateMilestoneTracker();
+            }
+            
+            // Show trade button if unlocked
+            if (gameState.tradingUnlocked) {
+                document.getElementById('tradeButton').style.display = 'inline-block';
+            }
+        }
+        
+        function updateResourceColor(elementId, value, warningThreshold, criticalThreshold) {
+            const element = document.getElementById(elementId);
+            element.classList.remove('warning', 'critical');
+            
+            if (value <= criticalThreshold) {
+                element.classList.add('critical');
+            } else if (value <= warningThreshold) {
+                element.classList.add('warning');
+            }
+        }
+        
+        function updateMilestoneTracker() {
+            const milestones = [
+                { points: 5, name: "Immune Survivor" },
+                { points: 10, name: "Trading Post" },
+                { points: 15, name: "Şişli Hospital" },
+                { points: 25, name: "Lab Equipment" },
+                { points: 35, name: "Food Cache" },
+                { points: 45, name: "Military Depot" },
+                { points: 60, name: "Survivor Group" }
+            ];
+            
+            const nextMilestone = milestones.find(m => m.points > gameState.scavengingPoints);
+            
+            if (nextMilestone) {
+                document.getElementById('scavProgress').textContent = `${gameState.scavengingPoints}/${nextMilestone.points}`;
+                document.getElementById('nextMilestone').textContent = `Next: ${nextMilestone.name}`;
+            } else {
+                document.getElementById('scavProgress').textContent = `${gameState.scavengingPoints}/60`;
+                document.getElementById('nextMilestone').textContent = "All milestones reached!";
+            }
+        }
+        
+        function adjustAssignment(type, change) {
+            const assigned = gameState[type + 'Assigned'];
+            const newValue = assigned + change;
+            
+            // Calculate total assigned
+            const totalAssigned = gameState.scavengeAssigned + gameState.researchAssigned + 
+                                 gameState.buildingAssigned + gameState.restingAssigned;
+            const othersAssigned = totalAssigned - assigned;
+            
+            if (newValue >= 0 && othersAssigned + newValue <= gameState.availableSurvivors) {
+                gameState[type + 'Assigned'] = newValue;
+                document.getElementById(type + 'Value').textContent = newValue;
+                
+                const newTotal = othersAssigned + newValue;
+                document.getElementById('totalAssigned').textContent = newTotal;
+                
+                // Enable/disable confirm button
+                document.getElementById('confirmButton').disabled = newTotal !== gameState.availableSurvivors;
+            }
+        }
+        
+        function confirmDay() {
+            const totalAssigned = gameState.scavengeAssigned + gameState.researchAssigned + 
+                                 gameState.buildingAssigned + gameState.restingAssigned;
+            
+            if (totalAssigned !== gameState.availableSurvivors) {
+                alert(`Please assign all ${gameState.availableSurvivors} survivors`);
+                return;
+            }
+            
+            processDayResults();
+        }
+        
+        function processDayResults() {
+            let report = `<h3>Day ${gameState.day} Results</h3>`;
+            
+            // Process scavenging
+            if (gameState.scavengeAssigned > 0) {
+                const scrapFound = gameState.scavengeAssigned * 50;
+                const foodFound = gameState.scavengeAssigned * 30;
+                let ammoFound = 0;
+                let medicalFound = 0;
+                
+                // Random chance for ammo and medical
+                for (let i = 0; i < gameState.scavengeAssigned; i++) {
+                    if (Math.random() < 0.3) ammoFound += 10;
+                    if (Math.random() < 0.1) medicalFound += 5;
+                }
+                
+                gameState.scrap += scrapFound;
+                gameState.food += foodFound;
+                gameState.ammo += ammoFound;
+                gameState.medical += medicalFound;
+                gameState.scavengingPoints += gameState.scavengeAssigned;
+                
+                report += `<p><strong>Scavenging:</strong> +${scrapFound} scrap, +${foodFound} food`;
+                if (ammoFound > 0) report += `, +${ammoFound} ammo`;
+                if (medicalFound > 0) report += `, +${medicalFound} medical`;
+                report += `</p>`;
+            }
+            
+            // Process research
+            if (gameState.researchAssigned > 0 && gameState.immuneSurvivorFound) {
+                const researchPoints = gameState.researchAssigned * (gameState.labEquipmentFound ? 4 : 2);
+                gameState.cureProgress += researchPoints;
+                report += `<p><strong>Research:</strong> +${researchPoints} cure points (${gameState.cureProgress}/100)</p>`;
+            } else if (gameState.researchAssigned > 0 && !gameState.immuneSurvivorFound) {
+                report += `<p><strong>Research:</strong> Cannot progress without immune survivor</p>`;
+            }
+            
+            // Process building
+            if (gameState.buildingAssigned > 0) {
+                const wallRepair = gameState.buildingAssigned * 12;
+                const oldWall = gameState.wallHealth;
+                gameState.wallHealth = Math.min(100, gameState.wallHealth + wallRepair);
+                report += `<p><strong>Building:</strong> Wall repaired ${oldWall}% → ${gameState.wallHealth}%</p>`;
+            }
+            
+            // Process resting (heal injured)
+            if (gameState.restingAssigned > 0 && gameState.injuredSurvivors > 0) {
+                const healed = Math.min(gameState.restingAssigned, gameState.injuredSurvivors);
+                gameState.injuredSurvivors -= healed;
+                gameState.healthySurvivors += healed;
+                report += `<p><strong>Resting:</strong> ${healed} injured survivors healed</p>`;
+            }
+            
+            // Food consumption
+            const foodNeeded = gameState.healthySurvivors + (gameState.injuredSurvivors * 2) + (gameState.sickSurvivors * 2);
+            gameState.food -= foodNeeded;
+            report += `<p><strong>Food consumed:</strong> ${foodNeeded}</p>`;
+            
+            // Check for starvation
+            if (gameState.food < 0) {
+                const starving = Math.ceil(Math.abs(gameState.food) / 2);
+                gameState.totalSurvivors -= starving;
+                gameState.healthySurvivors = Math.max(0, gameState.healthySurvivors - starving);
+                report += `<p style="color: #ff3333;"><strong>Starvation!</strong> ${starving} survivors died from lack of food</p>`;
+                gameState.food = 0;
+            }
+            
+            // Medical checks
+            if (gameState.medical === 0) {
+                gameState.daysWithoutMedical++;
+                if (gameState.daysWithoutMedical >= 2) {
+                    // Disease outbreak
+                    const newSick = Math.min(3, gameState.healthySurvivors);
+                    gameState.healthySurvivors -= newSick;
+                    gameState.sickSurvivors += newSick;
+                    report += `<p style="color: #ff3333;"><strong>Disease Outbreak!</strong> ${newSick} survivors became sick</p>`;
+                }
+            } else {
+                gameState.daysWithoutMedical = 0;
+                
+                // Auto-heal with available medical
+                if (gameState.sickSurvivors > 0 && gameState.medical >= 10) {
+                    const healableSick = Math.floor(gameState.medical / 10);
+                    const healed = Math.min(healableSick, gameState.sickSurvivors);
+                    gameState.sickSurvivors -= healed;
+                    gameState.healthySurvivors += healed;
+                    gameState.medical -= healed * 10;
+                    report += `<p><strong>Medical:</strong> ${healed} sick survivors healed</p>`;
+                }
+                
+                if (gameState.injuredSurvivors > 0 && gameState.medical >= 5) {
+                    const healableInjured = Math.floor(gameState.medical / 5);
+                    const healed = Math.min(healableInjured, gameState.injuredSurvivors);
+                    gameState.injuredSurvivors -= healed;
+                    gameState.healthySurvivors += healed;
+                    gameState.medical -= healed * 5;
+                    report += `<p><strong>Medical:</strong> ${healed} injured survivors healed</p>`;
+                }
+            }
+            
+            // Check milestones
+            checkMilestones(report);
+            
+            // Update available survivors for next day
+            gameState.availableSurvivors = gameState.healthySurvivors + gameState.injuredSurvivors;
+            
+            // Show evening report
+            document.getElementById('gameScreen').classList.remove('active');
+            document.getElementById('eveningScreen').classList.add('active');
+            document.getElementById('eveningReport').innerHTML = report;
+        }
+        
+        function checkMilestones(report) {
+            // Check scavenging milestones
+            if (gameState.scavengingPoints >= 5 && !gameState.immuneSurvivorFound) {
+                gameState.immuneSurvivorFound = true;
+                gameState.totalSurvivors++;
+                gameState.healthySurvivors++;
+                
+                const popup = document.createElement('div');
+                popup.innerHTML = `
+                    <h3>IMMUNE SURVIVOR FOUND!</h3>
+                    <p>Your scavengers discovered Ana hiding in a pharmacy in Beyoğlu.</p>
+                    <p>She's been bitten multiple times but hasn't turned.</p>
+                    <p>"I'm immune. Use my blood for your research."</p>
+                    <p>+ Ana joins your camp<br>+ Cure research can now begin</p>
+                `;
+                showEventPopup(popup.innerHTML);
+            }
+            
+            if (gameState.scavengingPoints >= 10 && !gameState.tradingUnlocked) {
+                gameState.tradingUnlocked = true;
+                
+                const popup = document.createElement('div');
+                popup.innerHTML = `
+                    <h3>TRADING POST ESTABLISHED!</h3>
+                    <p>Your scavengers made contact with merchants near the Grand Bazaar!</p>
+                    <p>You can now trade resources during daytime.</p>
+                    <p>Maximum 50 units per day.</p>
+                `;
+                showEventPopup(popup.innerHTML);
+            }
+            
+            if (gameState.scavengingPoints >= 15 && gameState.scavengingPoints - gameState.scavengeAssigned < 15) {
+                gameState.medical += 50;
+                gameState.food += 10;
+                
+                // Add new survivors if under cap
+                if (gameState.totalSurvivors < 12) {
+                    const newSurvivors = Math.min(2, 12 - gameState.totalSurvivors);
+                    gameState.totalSurvivors += newSurvivors;
+                    gameState.healthySurvivors += newSurvivors;
+                    
+                    const popup = document.createElement('div');
+                    popup.innerHTML = `
+                        <h3>ŞİŞLİ HOSPITAL DISCOVERED!</h3>
+                        <p>Scavengers reached the Amerikan Hastanesi!</p>
+                        <p>+ 50 medical supplies<br>+ 10 food<br>+ ${newSurvivors} survivors found</p>
+                    `;
+                    showEventPopup(popup.innerHTML);
+                }
+            }
+            
+            if (gameState.scavengingPoints >= 25 && !gameState.labEquipmentFound) {
+                gameState.labEquipmentFound = true;
+                gameState.scrap -= 100;
+                
+                const popup = document.createElement('div');
+                popup.innerHTML = `
+                    <h3>LABORATORY EQUIPMENT SECURED!</h3>
+                    <p>Scavengers found equipment at Boğaziçi University!</p>
+                    <p>Research rate DOUBLED!</p>
+                    <p>Cost: 100 scrap for transport</p>
+                `;
+                showEventPopup(popup.innerHTML);
+            }
+            
+            if (gameState.scavengingPoints >= 45 && gameState.scavengingPoints - gameState.scavengeAssigned < 45) {
+                gameState.ammo += 50;
+                gameState.medical += 20;
+                gameState.grenade += 3;
+                gameState.surgeBlast = 1;
+                
+                const popup = document.createElement('div');
+                popup.innerHTML = `
+                    <h3>MILITARY DEPOT BREACHED!</h3>
+                    <p>Scavengers found the Selimiye Barracks armory!</p>
+                    <p>+ 50 ammo<br>+ 20 medical<br>+ 3 grenades<br>+ 1 SURGE BLAST device</p>
+                    <p style="color: #ff3333;">WARNING: Tomorrow's zombie wave will be DOUBLED!</p>
+                `;
+                showEventPopup(popup.innerHTML);
+                
+                // Set flag for doubled wave
+                gameState.doubleTomorrowWave = true;
+            }
+        }
+        
+        function showEventPopup(content) {
+            const popup = document.getElementById('helpPopup');
+            popup.innerHTML = content + '<div class="button-group"><button onclick="closeHelp()">CONTINUE</button></div>';
+            popup.classList.add('active');
+            document.getElementById('popupOverlay').classList.add('active');
+        }
+        
+        function goToCombatPrep() {
+            document.getElementById('eveningScreen').classList.remove('active');
+            document.getElementById('combatPrepScreen').classList.add('active');
+            
+            // Reset daily trade limit
+            gameState.dailyTradeUsed = 0;
+            
+            // Update prep info
+            const defenders = gameState.healthySurvivors + gameState.injuredSurvivors;
+            const zombieCount = calculateZombieCount();
+            
+            document.getElementById('prepInfo').innerHTML = `
+                <p>Night ${gameState.day} approaching: ${zombieCount} zombies expected</p>
+                <p>Defenders ready: ${defenders} (${gameState.sickSurvivors} sick cannot fight)</p>
+                <p>Current resources: Scrap: ${gameState.scrap}, Medical: ${gameState.medical}</p>
+            `;
+            
+            // Update combat item counts
+            document.getElementById('molotovCount').textContent = gameState.molotov;
+            document.getElementById('grenadeCount').textContent = gameState.grenade;
+            document.getElementById('nukeCount').textContent = gameState.surgeBlast;
+            document.getElementById('reviveCount').textContent = gameState.reviveKit;
+        }
+        
+        function calculateZombieCount() {
+            let baseZombies = 5 + (gameState.day - 1) * 7 + Math.floor((gameState.day - 1) / 3) * 2;
+            
+            // Double if military depot was raided yesterday
+            if (gameState.doubleTomorrowWave) {
+                baseZombies *= 2;
+                gameState.doubleTomorrowWave = false;
+            }
+            
+            // Final wave scaling
+            if (gameState.cureProgress >= 100) {
+                baseZombies = 50 + (gameState.day - 15) * 25;
+            }
+            
+            return baseZombies;
+        }
+        
+        function craftItem(type) {
+            if (type === 'molotov') {
+                if (gameState.scrap >= 10 && gameState.medical >= 2) {
+                    gameState.scrap -= 10;
+                    gameState.medical -= 2;
+                    gameState.molotov++;
+                    updateCraftDisplay();
+                } else {
+                    alert('Not enough resources! Need 10 scrap and 2 medical.');
+                }
+            } else if (type === 'grenade') {
+                if (gameState.scrap >= 25 && gameState.medical >= 5) {
+                    gameState.scrap -= 25;
+                    gameState.medical -= 5;
+                    gameState.grenade++;
+                    updateCraftDisplay();
+                } else {
+                    alert('Not enough resources! Need 25 scrap and 5 medical.');
+                }
+            } else if (type === 'revive') {
+                if (gameState.medical >= 15) {
+                    gameState.medical -= 15;
+                    gameState.reviveKit++;
+                    updateCraftDisplay();
+                } else {
+                    alert('Not enough medical! Need 15 medical.');
+                }
+            }
+        }
+        
+        function updateCraftDisplay() {
+            document.getElementById('molotovCount').textContent = gameState.molotov;
+            document.getElementById('grenadeCount').textContent = gameState.grenade;
+            document.getElementById('nukeCount').textContent = gameState.surgeBlast;
+            document.getElementById('reviveCount').textContent = gameState.reviveKit;
+            
+            document.getElementById('prepInfo').innerHTML = `
+                <p>Night ${gameState.day} approaching: ${calculateZombieCount()} zombies expected</p>
+                <p>Defenders ready: ${gameState.healthySurvivors + gameState.injuredSurvivors} (${gameState.sickSurvivors} sick cannot fight)</p>
+                <p>Current resources: Scrap: ${gameState.scrap}, Medical: ${gameState.medical}</p>
+            `;
+        }
+        
+        function startCombat() {
+            document.getElementById('combatPrepScreen').classList.remove('active');
+            document.getElementById('combatScreen').classList.add('active');
+            
+            gameState.currentZombies = calculateZombieCount();
+            gameState.defenders = gameState.healthySurvivors + gameState.injuredSurvivors;
+            gameState.combatActive = true;
+            gameState.deadSurvivors = [];
+            
+            document.getElementById('nightNumber').textContent = gameState.day;
+            document.getElementById('zombiesRemaining').textContent = gameState.currentZombies;
+            document.getElementById('wallPercent').textContent = Math.floor(gameState.wallHealth);
+            updateWallDisplay();
+            
+            // Update combat item buttons
+            document.getElementById('molotovCombat').textContent = gameState.molotov;
+            document.getElementById('grenadeCombat').textContent = gameState.grenade;
+            document.getElementById('surgeCombat').textContent = gameState.surgeBlast;
+            
+            // Clear combat log
+            document.getElementById('combatLog').innerHTML = '';
+            
+            // Start combat simulation
+            addCombatMessage(`Night ${gameState.day} - ${gameState.currentZombies} zombies approaching!`);
+            addCombatMessage(`${gameState.defenders} defenders ready!`);
+            
+            setTimeout(() => runCombat(), 1000);
+        }
+        
+        function runCombat() {
+            if (!gameState.combatActive) return;
+            
+            if (gameState.currentZombies <= 0) {
+                endCombat(true);
+                return;
+            }
+            
+            if (gameState.wallHealth <= 0) {
+                endCombat(false);
+                return;
+            }
+            
+            // Auto-combat calculations
+            if (gameState.defenders > 0 && gameState.ammo > 0) {
+                // Each defender can kill 1 zombie every 2 seconds
+                const killRate = Math.min(Math.ceil(gameState.defenders / 2), gameState.currentZombies);
+                const ammoNeeded = killRate * 3;
+                
+                if (gameState.ammo >= ammoNeeded) {
+                    gameState.currentZombies -= killRate;
+                    gameState.ammo -= ammoNeeded;
+                    gameState.totalZombiesKilled += killRate;
+                    addCombatMessage(`Defenders killed ${killRate} zombies!`);
+                } else {
+                    // Partial kills with remaining ammo
+                    const possibleKills = Math.floor(gameState.ammo / 3);
+                    gameState.currentZombies -= possibleKills;
+                    gameState.totalZombiesKilled += possibleKills;
+                    gameState.ammo = 0;
+                    if (possibleKills > 0) {
+                        addCombatMessage(`Defenders killed ${possibleKills} zombies! Out of ammo!`);
+                    }
+                }
+            }
+            
+            // Zombies damage wall
+            const damagePerZombie = 2;
+            const totalDamage = Math.min(gameState.currentZombies * damagePerZombie * 0.5, gameState.wallHealth);
+            gameState.wallHealth -= totalDamage;
+            
+            if (totalDamage > 0) {
+                addCombatMessage(`Wall taking damage! ${Math.floor(gameState.wallHealth)}% remaining`);
+            }
+            
+            // Check for casualties if wall is low
+            if (gameState.wallHealth < 30 && Math.random() < 0.3) {
+                causeCasualty();
+            }
+            
+            // Update display
+            document.getElementById('zombiesRemaining').textContent = gameState.currentZombies;
+            document.getElementById('wallPercent').textContent = Math.floor(gameState.wallHealth);
+            updateWallDisplay();
+            
+            // Continue combat
+            setTimeout(() => runCombat(), 2000);
+        }
+        
+        function causeCasualty() {
+            if (gameState.defenders > 0) {
+                const casualtyName = getRandomSurvivorName();
+                
+                if (Math.random() < 0.7) {
+                    // Injured
+                    if (gameState.healthySurvivors > 0) {
+                        gameState.healthySurvivors--;
+                        gameState.injuredSurvivors++;
+                        gameState.defenders--;
+                        addCombatMessage(`${casualtyName} was injured!`, 'warning');
+                    }
+                } else {
+                    // Killed
+                    if (gameState.healthySurvivors > 0) {
+                        gameState.healthySurvivors--;
+                    } else if (gameState.injuredSurvivors > 0) {
+                        gameState.injuredSurvivors--;
+                    }
+                    gameState.totalSurvivors--;
+                    gameState.defenders--;
+                    gameState.deadSurvivors.push(casualtyName);
+                    addCombatMessage(`${casualtyName} was killed!`, 'critical');
+                }
+            }
+        }
+        
+        function getRandomSurvivorName() {
+            const allNames = [...turkishNames.male, ...turkishNames.female];
+            return allNames[Math.floor(Math.random() * allNames.length)];
+        }
+        
+        function updateWallDisplay() {
+            const wallBar = document.getElementById('wallHealthBar');
+            wallBar.style.width = gameState.wallHealth + '%';
+            
+            wallBar.classList.remove('health-good', 'health-warning', 'health-critical');
+            if (gameState.wallHealth > 50) {
+                wallBar.classList.add('health-good');
+            } else if (gameState.wallHealth > 25) {
+                wallBar.classList.add('health-warning');
+            } else {
+                wallBar.classList.add('health-critical');
+            }
+        }
+        
+        function addCombatMessage(message, type = '') {
+            const log = document.getElementById('combatLog');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'combat-message';
+            if (type === 'warning') messageDiv.style.color = '#ffff00';
+            if (type === 'critical') messageDiv.style.color = '#ff3333';
+            messageDiv.textContent = '>> ' + message;
+            log.appendChild(messageDiv);
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        function useMolotov() {
+            if (gameState.molotov > 0 && gameState.currentZombies > 0) {
+                gameState.molotov--;
+                const killed = Math.min(3, gameState.currentZombies);
+                gameState.currentZombies -= killed;
+                gameState.totalZombiesKilled += killed;
+                document.getElementById('molotovCombat').textContent = gameState.molotov;
+                document.getElementById('zombiesRemaining').textContent = gameState.currentZombies;
+                addCombatMessage(`Molotov thrown! ${killed} zombies eliminated!`);
+                
+                if (gameState.currentZombies <= 0) {
+                    endCombat(true);
+                }
+            }
+        }
+        
+        function useGrenade() {
+            if (gameState.grenade > 0 && gameState.currentZombies > 0) {
+                gameState.grenade--;
+                const killed = Math.min(5, gameState.currentZombies);
+                gameState.currentZombies -= killed;
+                gameState.totalZombiesKilled += killed;
+                document.getElementById('grenadeCombat').textContent = gameState.grenade;
+                document.getElementById('zombiesRemaining').textContent = gameState.currentZombies;
+                addCombatMessage(`Grenade exploded! ${killed} zombies destroyed!`);
+                
+                if (gameState.currentZombies <= 0) {
+                    endCombat(true);
+                }
+            }
+        }
+        
+        function useSurgeBlast() {
+            if (gameState.surgeBlast > 0 && gameState.currentZombies > 0) {
+                gameState.surgeBlast--;
+                const killed = gameState.currentZombies;
+                gameState.totalZombiesKilled += killed;
+                gameState.currentZombies = 0;
+                document.getElementById('surgeCombat').textContent = gameState.surgeBlast;
+                document.getElementById('zombiesRemaining').textContent = gameState.currentZombies;
+                addCombatMessage(`SURGE BLAST ACTIVATED! All ${killed} zombies vaporized!`);
+                addCombatMessage(`The explosion will attract more zombies tomorrow...`, 'warning');
+                gameState.doubleTomorrowWave = true;
+                endCombat(true);
+            }
+        }
+        
+        function endCombat(victory) {
+            gameState.combatActive = false;
+            
+            setTimeout(() => {
+                document.getElementById('combatScreen').classList.remove('active');
+                document.getElementById('nightSummaryScreen').classList.add('active');
+                
+                document.getElementById('summaryNight').textContent = gameState.day;
+                
+                let summaryHTML = '';
+                
+                if (victory) {
+                    summaryHTML = `
+                        <h3>WAVE COMPLETE</h3>
+                        <p>All zombies eliminated!</p>
+                        <p>Wall integrity: ${Math.floor(gameState.wallHealth)}%</p>
+                    `;
+                } else {
+                    summaryHTML = `
+                        <h3>WALL BREACHED!</h3>
+                        <p style="color: #ff3333;">The compound has been overrun!</p>
+                    `;
+                }
+                
+                if (gameState.deadSurvivors.length > 0) {
+                    summaryHTML += `<p style="color: #ff3333;">Deaths: ${gameState.deadSurvivors.join(', ')}</p>`;
+                }
+                
+                document.getElementById('nightSummaryContent').innerHTML = summaryHTML;
+                
+                // Show revive options if there are dead survivors and revive kits
+                if (gameState.deadSurvivors.length > 0 && gameState.reviveKit > 0) {
+                    showReviveOptions();
+                } else {
+                    document.getElementById('reviveSection').style.display = 'none';
+                }
+                
+                if (!victory) {
+                    setTimeout(() => gameOver(), 3000);
+                }
+            }, 1500);
+        }
+        
+        function showReviveOptions() {
+            const reviveSection = document.getElementById('reviveSection');
+            reviveSection.style.display = 'block';
+            
+            let optionsHTML = `<p>You have ${gameState.reviveKit} revive kit(s)</p>`;
+            
+            gameState.deadSurvivors.forEach(name => {
+                optionsHTML += `<button onclick="reviveSurvivor('${name}')">Revive ${name}</button> `;
+            });
+            
+            optionsHTML += `<button onclick="skipRevive()">Save Kits</button>`;
+            
+            document.getElementById('reviveOptions').innerHTML = optionsHTML;
+        }
+        
+        function reviveSurvivor(name) {
+            if (gameState.reviveKit > 0) {
+                gameState.reviveKit--;
+                gameState.totalSurvivors++;
+                gameState.healthySurvivors++;
+                gameState.deadSurvivors = gameState.deadSurvivors.filter(n => n !== name);
+                
+                document.getElementById('nightSummaryContent').innerHTML += 
+                    `<p style="color: #00ff41;">${name} has been revived!</p>`;
+                
+                if (gameState.deadSurvivors.length > 0 && gameState.reviveKit > 0) {
+                    showReviveOptions();
+                } else {
+                    document.getElementById('reviveSection').style.display = 'none';
+                }
+            }
+        }
+        
+        function skipRevive() {
+            document.getElementById('reviveSection').style.display = 'none';
+        }
+        
+        function continueTomorrow() {
+            // Check if cure is complete
+            if (gameState.cureProgress >= 100) {
+                if (gameState.day < 18) {
+                    // Start final defense phase
+                    gameState.day++;
+                    alert(`Cure complete! Survive 3 more nights to mass-produce it! (${19 - gameState.day} nights remaining)`);
+                } else if (gameState.day === 19) {
+                    // Victory!
+                    victory();
+                    return;
+                }
+            }
+            
+            //Check if we have any survivors left 
+	if (gameState.totalSurvivors <= 0) { 
+		gameOver(); 
+		return; 
+	}
+
+        // Progress to next day
+        gameState.day++;
+        
+        // Reset assignments
+        gameState.scavengeAssigned = 0;
+        gameState.researchAssigned = 0;
+        gameState.buildingAssigned = 0;
+        gameState.restingAssigned = 0;
+        
+        // Update available survivors
+        gameState.availableSurvivors = gameState.healthySurvivors + gameState.injuredSurvivors;
+        
+        // Reset assignment display
+        document.getElementById('scavengeValue').textContent = '0';
+        document.getElementById('researchValue').textContent = '0';
+        document.getElementById('buildingValue').textContent = '0';
+        document.getElementById('restingValue').textContent = '0';
+        document.getElementById('totalAssigned').textContent = '0';
+        
+        // Show game screen
+        document.getElementById('nightSummaryScreen').classList.remove('active');
+        document.getElementById('gameScreen').classList.add('active');
+        
+        updateDisplay();
+    }
+    
+    function victory() {
+        document.getElementById('nightSummaryScreen').classList.remove('active');
+        document.getElementById('victoryScreen').classList.add('active');
+        
+        const gameTime = Math.floor((Date.now() - gameState.gameStartTime) / 60000);
+        
+        const victoryText = `
+            <p>${gameState.playerName}, you did it.</p>
+            <p>The cure is spreading from Galata Tower across the seven hills. 
+            The Bosphorus Bridge lights flicker back to life. 
+            Istanbul awakens from its nightmare.</p>
+            <p>From Sultanahmet to Taksim, survivors emerge from hiding. 
+            Children play in Gülhane Park again. 
+            The call to prayer echoes once more across the city.</p>
+            <p>You saved not just Istanbul, but humanity itself.</p>
+        `;
+        
+        document.getElementById('victoryText').innerHTML = victoryText;
+        
+        const statsHTML = `
+            <div class="stat-item">
+                <div>Days Survived</div>
+                <div style="font-size: 1.5em;">${gameState.day}</div>
+            </div>
+            <div class="stat-item">
+                <div>Game Time</div>
+                <div style="font-size: 1.5em;">${gameTime} minutes</div>
+            </div>
+            <div class="stat-item">
+                <div>Survivors Saved</div>
+                <div style="font-size: 1.5em;">${gameState.totalSurvivors}/12</div>
+            </div>
+            <div class="stat-item">
+                <div>Zombies Eliminated</div>
+                <div style="font-size: 1.5em;">${gameState.totalZombiesKilled}</div>
+            </div>
+        `;
+        
+        document.getElementById('victoryStats').innerHTML = statsHTML;
+    }
+    
+    function gameOver() {
+        document.getElementById('nightSummaryScreen').classList.remove('active');
+        document.getElementById('combatScreen').classList.remove('active');
+        document.getElementById('gameOverScreen').classList.add('active');
+        
+        const gameTime = Math.floor((Date.now() - gameState.gameStartTime) / 60000);
+        
+        const gameOverText = `
+            <p>${gameState.playerName}, the compound has fallen.</p>
+            <p>Day ${gameState.day} - Karaköy Overrun</p>
+            <p>The last radio transmission echoes:<br>
+            "If anyone hears this... Istanbul is lost."</p>
+            <p>But somewhere in the ruins, another survivor finds your research notes. 
+            The cure formula survives. Hope remains.</p>
+            <p>Perhaps next time, Istanbul can be saved.<br>
+            Perhaps next time, you'll be ready.</p>
+        `;
+        
+        document.getElementById('gameOverText').innerHTML = gameOverText;
+        
+        const statsHTML = `
+            <div class="stat-item">
+                <div>Days Survived</div>
+                <div>${gameState.day}</div>
+            </div>
+            <div class="stat-item">
+                <div>Game Time</div>
+                <div>${gameTime} minutes</div>
+            </div>
+            <div class="stat-item">
+                <div>Cure Progress</div>
+                <div>${gameState.cureProgress}%</div>
+            </div>
+            <div class="stat-item">
+                <div>Zombies Killed</div>
+                <div>${gameState.totalZombiesKilled}</div>
+            </div>
+        `;
+        
+        document.getElementById('gameOverStats').innerHTML = statsHTML;
+    }
+    
+    // Trading functions
+    function openTrading() {
+        if (!gameState.tradingUnlocked) return;
+        
+        document.getElementById('tradePopup').classList.add('active');
+        document.getElementById('popupOverlay').classList.add('active');
+        
+        const resourceDisplay = `
+            <p>Your Resources: Scrap: ${gameState.scrap} | Food: ${gameState.food} | Ammo: ${gameState.ammo} | Medical: ${gameState.medical}</p>
+            <p>Daily Limit Remaining: ${gameState.dailyTradeLimit - gameState.dailyTradeUsed}/50</p>
+        `;
+        
+        const tradeTable = `
+            <h3>Exchange Rates</h3>
+            <table style="width: 100%; color: #00ff41;">
+                <tr>
+                    <th>To Get →</th>
+                    <th>1 Scrap</th>
+                    <th>1 Food</th>
+                    <th>1 Medical</th>
+                    <th>1 Ammo</th>
+                </tr>
+                <tr>
+                    <td>Pay Food</td>
+                    <td>1:1</td>
+                    <td>-</td>
+                    <td>3:1</td>
+                    <td>2:1</td>
+                </tr>
+                <tr>
+                    <td>Pay Scrap</td>
+                    <td>-</td>
+                    <td>2:1</td>
+                    <td>5:1</td>
+                    <td>3:1</td>
+                </tr>
+                <tr>
+                    <td>Pay Medical</td>
+                    <td>3:1</td>
+                    <td>2:1</td>
+                    <td>-</td>
+                    <td>1:1</td>
+                </tr>
+                <tr>
+                    <td>Pay Ammo</td>
+                    <td>2:1</td>
+                    <td>1:1</td>
+                    <td>2:1</td>
+                    <td>-</td>
+                </tr>
+            </table>
+            
+            <h3 style="margin-top: 20px;">Select Resource to Get:</h3>
+            <div class="trade-grid">
+                <button class="trade-button" onclick="openSpecificTrade('scrap')">GET SCRAP</button>
+                <button class="trade-button" onclick="openSpecificTrade('food')">GET FOOD</button>
+                <button class="trade-button" onclick="openSpecificTrade('medical')">GET MEDICAL</button>
+                <button class="trade-button" onclick="openSpecificTrade('ammo')">GET AMMO</button>
+            </div>
+        `;
+        
+        document.getElementById('tradeResourceDisplay').innerHTML = resourceDisplay;
+        document.getElementById('tradeContent').innerHTML = tradeTable;
+    }
+    
+    function closeTrading() {
+        document.getElementById('tradePopup').classList.remove('active');
+        document.getElementById('popupOverlay').classList.remove('active');
+        updateDisplay();
+    }
+    
+    function openSpecificTrade(resourceType) {
+        document.getElementById('specificTradePopup').classList.add('active');
+        document.getElementById('specificTradeTitle').textContent = `GET ${resourceType.toUpperCase()}`;
+        
+        const resourceDisplay = `
+            <p>Your Resources: Scrap: ${gameState.scrap} | Food: ${gameState.food} | Ammo: ${gameState.ammo} | Medical: ${gameState.medical}</p>
+            <p>Daily Limit Remaining: ${gameState.dailyTradeLimit - gameState.dailyTradeUsed}/50</p>
+        `;
+        
+        document.getElementById('specificTradeResources').innerHTML = resourceDisplay;
+        
+        let tradeOptions = '<p>Choose what to trade for ' + resourceType + ':</p>';
+        
+        const trades = {
+            scrap: [
+                { from: 'food', rate: '1:1', fromAmount: 1, toAmount: 1 },
+                { from: 'medical', rate: '1:3', fromAmount: 1, toAmount: 3 },
+                { from: 'ammo', rate: '1:2', fromAmount: 1, toAmount: 2 }
+            ],
+            food: [
+                { from: 'scrap', rate: '2:1', fromAmount: 2, toAmount: 1 },
+                { from: 'medical', rate: '1:2', fromAmount: 1, toAmount: 2 },
+                { from: 'ammo', rate: '1:1', fromAmount: 1, toAmount: 1 }
+            ],
+            medical: [
+                { from: 'scrap', rate: '5:1', fromAmount: 5, toAmount: 1 },
+                { from: 'food', rate: '3:1', fromAmount: 3, toAmount: 1 },
+                { from: 'ammo', rate: '2:1', fromAmount: 2, toAmount: 1 }
+            ],
+            ammo: [
+                { from: 'scrap', rate: '3:1', fromAmount: 3, toAmount: 1 },
+                { from: 'food', rate: '2:1', fromAmount: 2, toAmount: 1 },
+                { from: 'medical', rate: '1:1', fromAmount: 1, toAmount: 1 }
+            ]
+        };
+        
+        trades[resourceType].forEach(trade => {
+            const canAfford = gameState[trade.from] >= trade.fromAmount && 
+                             gameState.dailyTradeUsed + trade.fromAmount <= gameState.dailyTradeLimit;
+            
+            if (canAfford) {
+                tradeOptions += `
+                    <button onclick="executeTrade('${trade.from}', ${trade.fromAmount}, '${resourceType}', ${trade.toAmount})" 
+                            style="margin: 10px;">
+                        TRADE ${trade.fromAmount} ${trade.from.toUpperCase()} → GET ${trade.toAmount} ${resourceType.toUpperCase()}
+                    </button><br>
+                `;
+            } else {
+                tradeOptions += `
+                    <button disabled style="margin: 10px; opacity: 0.5;">
+                        TRADE ${trade.fromAmount} ${trade.from.toUpperCase()} → GET ${trade.toAmount} ${resourceType.toUpperCase()}
+                        ${gameState[trade.from] < trade.fromAmount ? ' (Not enough ' + trade.from + ')' : ' (Daily limit reached)'}
+                    </button><br>
+                `;
+            }
+        });
+        
+        document.getElementById('specificTradeOptions').innerHTML = tradeOptions;
+    }
+    
+    function executeTrade(fromResource, fromAmount, toResource, toAmount) {
+        if (gameState[fromResource] >= fromAmount && 
+            gameState.dailyTradeUsed + fromAmount <= gameState.dailyTradeLimit) {
+            
+            gameState[fromResource] -= fromAmount;
+            gameState[toResource] += toAmount;
+            gameState.dailyTradeUsed += fromAmount;
+            
+            // Update display
+            openSpecificTrade(toResource);
+            
+            // Show confirmation
+            const confirmMsg = document.createElement('p');
+            confirmMsg.style.color = '#00ff41';
+            confirmMsg.textContent = `✓ Trade Complete! -${fromAmount} ${fromResource}, +${toAmount} ${toResource}`;
+            document.getElementById('specificTradeResources').appendChild(confirmMsg);
+            
+            setTimeout(() => {
+                if (confirmMsg.parentNode) {
+                    confirmMsg.remove();
+                }
+            }, 2000);
+        }
+    }
+    
+    function closeSpecificTrade() {
+        document.getElementById('specificTradePopup').classList.remove('active');
+        openTrading(); // Go back to main trade screen
+    }
+    
+    // Help functions
+    function showHelp() {
+        document.getElementById('helpPopup').classList.add('active');
+        document.getElementById('popupOverlay').classList.add('active');
+        
+        // Reset help content if it was changed by event
+        document.getElementById('helpPopup').innerHTML = `
+            <h2>HOW TO PLAY</h2>
+            <p><strong>GOAL:</strong> Create a cure (100 research points) and survive the production phase</p>
+            
+            <h3>DAILY CYCLE:</h3>
+            <ol>
+                <li>Morning - Assign survivors to tasks</li>
+                <li>Evening - Collect resources, see events</li>
+                <li>Prep - Craft combat items</li>
+                <li>Night - Defend against zombies</li>
+                <li>Summary - View results, continue</li>
+            </ol>
+            
+            <h3>RESOURCES:</h3>
+            <ul>
+                <li><strong>Scrap</strong> - Build walls, craft items</li>
+                <li><strong>Food</strong> - Feed survivors (1/day healthy, 2/day sick)</li>
+                <li><strong>Ammo</strong> - Auto-defense (3 per zombie)</li>
+                <li><strong>Medical</strong> - Heal sick/injured, craft items</li>
+            </ul>
+            
+            <h3>COMBAT:</h3>
+            <ul>
+                <li>Defenders auto-shoot zombies</li>
+                <li>Molotovs kill 3 zombies</li>
+                <li>Grenades kill 5 zombies</li>
+                <li>Surge Blast clears all (one-time use)</li>
+            </ul>
+            
+            <div class="button-group">
+                <button onclick="closeHelp()">CLOSE</button>
+            </div>
+        `;
+    }
+    
+    function closeHelp() {
+        document.getElementById('helpPopup').classList.remove('active');
+        document.getElementById('popupOverlay').classList.remove('active');
+    }
+    
+    function closePopup() {
+        document.querySelectorAll('.popup').forEach(popup => {
+            popup.classList.remove('active');
+        });
+        document.getElementById('popupOverlay').classList.remove('active');
+    }
+</script>
