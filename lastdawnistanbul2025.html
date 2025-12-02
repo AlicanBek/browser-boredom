@@ -170,6 +170,15 @@
             margin: 6px 0;
         }
         
+        .button-group.bottom {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
+            margin: 0;
+        }
+        
         .resource-display {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
@@ -575,7 +584,7 @@
             </div>
             
             <div id="survivorInfo" style="margin: 8px 0; font-size: 0.9em;">
-                <div>Survivors: <span id="totalSurvivors">3</span>/12 (H:<span id="healthySurvivors">3</span> I:<span id="injuredSurvivors">0</span> S:<span id="sickSurvivors">0</span>)</div>
+                <div>Survivors: <span id="totalSurvivors">3</span>/12 (H:<span id="healthySurvivors">3</span> I:<span id="injuredSurvivors">0</span> S:<span id="sickSurvivors">0</span>) | Wall: <span id="wallStrengthDisplay">100</span>%</div>
             </div>
             
             <div id="assignmentSection">
@@ -605,11 +614,11 @@
                     </div>
                 </div>
                 <div class="survivor-assignment">
-                    <span>Resting (Heal injuries)</span>
+                    <span>Healing (Heal injuries)</span>
                     <div class="assignment-controls">
-                        <button onclick="adjustAssignment('resting', -1)">−</button>
-                        <span class="assignment-value" id="restingValue">0</span>
-                        <button onclick="adjustAssignment('resting', 1)">+</button>
+                        <button onclick="adjustAssignment('healing', -1)">−</button>
+                        <span class="assignment-value" id="healingValue">0</span>
+                        <button onclick="adjustAssignment('healing', 1)">+</button>
                     </div>
                 </div>
                 
@@ -911,7 +920,7 @@
                 scavenge: 0,
                 research: 0,
                 building: 0,
-                resting: 0
+                healing: 0
             },
             
             // Progress tracking (mutable)
@@ -1021,9 +1030,9 @@
             get() { return this.assignments.building; },
             set(v) { this.assignments.building = v; }
         });
-        Object.defineProperty(gameState, 'restingAssigned', {
-            get() { return this.assignments.resting; },
-            set(v) { this.assignments.resting = v; }
+        Object.defineProperty(gameState, 'healingAssigned', {
+            get() { return this.assignments.healing; },
+            set(v) { this.assignments.healing = v; }
         });
 
         Object.defineProperty(gameState, 'cureProgress', {
@@ -1236,6 +1245,9 @@
             document.getElementById('sickSurvivors').textContent = gameState.sickSurvivors;
             document.getElementById('availableSurvivors').textContent = gameState.availableSurvivors;
             
+            // Update wall strength display
+            document.getElementById('wallStrengthDisplay').textContent = Math.floor(gameState.wallHealth);
+            
             // Update cure progress
             const curePercent = Math.min(100, (gameState.cureProgress / 100) * 100);
             document.getElementById('cureProgress').style.width = curePercent + '%';
@@ -1285,7 +1297,7 @@
             
             // Calculate total assigned
             const totalAssigned = gameState.scavengeAssigned + gameState.researchAssigned + 
-                                 gameState.buildingAssigned + gameState.restingAssigned;
+                                 gameState.buildingAssigned + gameState.healingAssigned;
             const othersAssigned = totalAssigned - assigned;
             
             if (newValue >= 0 && othersAssigned + newValue <= gameState.availableSurvivors) {
@@ -1379,9 +1391,9 @@
                 report += `<p><strong>Building:</strong> Wall repaired ${oldWall}% → ${gameState.wallHealth}%</p>`;
             }
             
-            // Process resting (heal injured)
-            if (gameState.restingAssigned > 0 && gameState.injuredSurvivors > 0) {
-                const healed = Math.min(gameState.restingAssigned, gameState.injuredSurvivors);
+            // Process healing (heal injured)
+            if (gameState.healingAssigned > 0 && gameState.injuredSurvivors > 0) {
+                const healed = Math.min(gameState.healingAssigned, gameState.injuredSurvivors);
                 let healedCount = 0;
                 for (let survivor of gameState.survivors.list) {
                     if (survivor.status === 'injured' && healedCount < healed) {
@@ -1391,13 +1403,16 @@
                 }
                 gameState.injuredSurvivors -= healed;
                 gameState.healthySurvivors += healed;
-                report += `<p><strong>Resting:</strong> ${healed} injured survivors healed</p>`;
+                report += `<p><strong>Healing:</strong> ${healed} injured survivors healed</p>`;
             }
             
             // Food consumption
             const foodNeeded = gameState.healthySurvivors + (gameState.injuredSurvivors * 2) + (gameState.sickSurvivors * 2);
             gameState.food -= foodNeeded;
             report += `<p><strong>Food consumed:</strong> ${foodNeeded}</p>`;
+            
+            // Display final resource counts
+            report += `<p style="border-top: 1px solid #00ff41; padding-top: 6px; margin-top: 6px;"><strong>Resources:</strong> Scrap: ${gameState.scrap} | Food: ${gameState.food} | Ammo: ${gameState.ammo} | Medical: ${gameState.medical}</p>`;
             
             // Check for starvation
             if (gameState.food < 0) {
@@ -1989,7 +2004,7 @@
         gameState.scavengeAssigned = 0;
         gameState.researchAssigned = 0;
         gameState.buildingAssigned = 0;
-        gameState.restingAssigned = 0;
+        gameState.healingAssigned = 0;
         
         // Update available survivors
         gameState.availableSurvivors = gameState.healthySurvivors + gameState.injuredSurvivors;
@@ -1998,7 +2013,7 @@
         document.getElementById('scavengeValue').textContent = '0';
         document.getElementById('researchValue').textContent = '0';
         document.getElementById('buildingValue').textContent = '0';
-        document.getElementById('restingValue').textContent = '0';
+        document.getElementById('healingValue').textContent = '0';
         document.getElementById('totalAssigned').textContent = '0';
         
         // Show game screen
