@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Last Dawn: Istanbul</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- Help Button -->
+        <button class="help-button" onclick="showHelp()" style="display: none;">ⓘ</button>
+        
+        <!-- Daily Routine Indicator -->
+        <div class="daily-routine-indicator" id="dailyRoutineIndicator" style="display: none;">
+            <div class="routine-phase-text" id="phaseText">Morning</div>
+            <div class="routine-dots">
+                <div class="routine-dot active" id="dot0"></div>
+                <div class="routine-dot" id="dot1"></div>
+                <div class="routine-dot" id="dot2"></div>
+                <div class="routine-dot" id="dot3"></div>
+                <div class="routine-dot" id="dot4"></div>
+            </div>
+        </div>
+        
+        <!-- Welcome Screen -->
+        <div id="welcomeScreen" class="screen active">
+            <h1>LAST DAWN: ISTANBUL</h1>
+            <div class="story-text">
+                The city has fallen silent.<br>
+                The Bosphorus runs red at dawn.<br>
+                Only you can save what remains.
+            </div>
+            <input type="text" id="playerName" placeholder="Enter your name" maxlength="20">
+            <div class="button-group">
+                <button onclick="startGame()">BEGIN STORY</button>
+            </div>
+            <div class="disclaimer">
+                This is a work of fiction. All events, characters,<br>
+                and scenarios are entirely fictional and have no<br>
+                connection to real-world events or circumstances.
+            </div>
+        </div>
+        
+        <!-- Story Introduction -->
+        <div id="storyScreen" class="screen">
+            <h1>DAY 0 - GALATA TOWER LABORATORY</h1>
+            <div class="mission-text" id="storyText"></div>
+            <div class="button-group">
+                <button onclick="beginDay1()">CONTINUE</button>
+            </div>
+        </div>
+        
+        <!-- Main Game Screen -->
+        <div id="gameScreen" class="screen">
+            <h2 id="dayTitle">DAY 1 - KARAKÖY</h2>
+            
+            <div class="resource-display">
+                <div class="resource-item">
+                    <div class="resource-label">Scrap</div>
+                    <div class="resource-value" id="scrapDisplay">0</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-label">Food</div>
+                    <div class="resource-value" id="foodDisplay">0</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-label">Ammo</div>
+                    <div class="resource-value" id="ammoDisplay">0</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-label">Medical</div>
+                    <div class="resource-value" id="medicalDisplay">0</div>
+                </div>
+            </div>
+            
+            <div class="milestone-tracker" id="milestoneTracker" style="display: none;">
+                <div class="milestone-progress">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span>Scavenging Progress</span>
+                        <span id="scavProgress">0/5</span>
+                    </div>
+                    <span id="nextMilestone">Next: Immune</span>
+                </div>
+            </div>
+            
+            <h2>CURE PROGRESS <span id="curePercent" style="float: right; font-size: 0.9em;">0%</span></h2>
+            <div class="progress-bar">
+                <div class="progress-fill" id="cureProgress" style="width: 0%"></div>
+                <div class="progress-text" id="cureText">Cure: 0/100</div>
+            </div>
+            
+            <div id="survivorInfo" style="margin: 8px 0; font-size: 0.9em;">
+                <div>Survivors: <span id="totalSurvivors">3</span>/12 (Healthy:<span id="healthySurvivors">3</span> Injured:<span id="injuredSurvivors">0</span> Sick:<span id="sickSurvivors">0</span>) | Wall: <span id="wallStrengthDisplay">100</span>%</div>
+            </div>
+            
+            <div id="assignmentSection">
+                <h2>Assign Survivors</h2>
+                <div class="survivor-assignment">
+                    <span>Scavenge (Search Eminönü)</span>
+                    <div class="assignment-controls">
+                        <button onclick="adjustAssignment('scavenge', -1)">−</button>
+                        <span class="assignment-value" id="scavengeValue">0</span>
+                        <button onclick="adjustAssignment('scavenge', 1)">+</button>
+                    </div>
+                </div>
+                <div class="survivor-assignment" id="researchAssignment">
+                    <div style="width: 100%;">
+                        <div>Research (Work on cure)</div>
+                        <div id="researchStatus" style="font-size: 0.8em; color: #ffff00; margin-top: 3px;">Awaiting immune survivor...</div>
+                    </div>
+                    <div class="assignment-controls" id="researchControls">
+                        <button onclick="adjustAssignment('research', -1)" id="researchMinusBtn" disabled>−</button>
+                        <span class="assignment-value" id="researchValue">0</span>
+                        <button onclick="adjustAssignment('research', 1)" id="researchPlusBtn" disabled>+</button>
+                    </div>
+                </div>
+                <div class="survivor-assignment" id="buildingAssignment">
+                    <div style="width: 100%;">
+                        <div>Building (Fortify walls)</div>
+                        <div id="buildingStatus" style="font-size: 0.8em; color: #00cc33; margin-top: 3px;"></div>
+                    </div>
+                    <div class="assignment-controls">
+                        <button onclick="adjustAssignment('building', -1)" id="buildingMinusBtn">−</button>
+                        <span class="assignment-value" id="buildingValue">0</span>
+                        <button onclick="adjustAssignment('building', 1)" id="buildingPlusBtn">+</button>
+                    </div>
+                </div>
+                <div id="healingAssignment" class="survivor-assignment">
+                    <div style="width: 100%;">
+                        <div>Healing (Heal injured and sick survivors)</div>
+                        <div id="healingStatus" style="font-size: 0.8em; color: #00cc33; margin-top: 3px;"></div>
+                    </div>
+                    <div class="assignment-controls">
+                        <button id="healingMinusBtn" onclick="adjustAssignment('healing', -1)">−</button>
+                        <span class="assignment-value" id="healingValue">0</span>
+                        <button id="healingPlusBtn" onclick="adjustAssignment('healing', 1)">+</button>
+                    </div>
+                </div>
+                
+                <div style="margin: 8px 0; text-align: center; font-size: 0.9em;">
+                    Total: <span id="totalAssigned">0</span>/<span id="availableSurvivors">3</span>
+                </div>
+                
+                <div class="button-group">
+                    <button onclick="confirmDay()" id="confirmButton">CONFIRM ASSIGNMENTS</button>
+                    <button onclick="openTrading()" id="tradeButton" style="display: none;">TRADE RESOURCES</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Evening Report Screen -->
+        <div id="eveningScreen" class="screen">
+            <h2 id="eveningTitle">EVENING REPORT</h2>
+            <div id="eveningReport"></div>
+            <div class="button-group">
+                <button onclick="goToCombatPrep()">CONTINUE TO COMBAT PREP</button>
+            </div>
+        </div>
+        
+        <!-- Combat Prep Screen -->
+        <div id="combatPrepScreen" class="screen">
+            <h2>COMBAT PREPARATION</h2>
+            <div id="prepInfo"></div>
+            
+            <div class="resource-display" style="margin: 10px 0;">
+                <div class="resource-item">
+                    <div class="resource-label">Molotov</div>
+                    <div class="resource-value" id="molotovCount">0</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-label">Grenade</div>
+                    <div class="resource-value" id="grenadeCount">0</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-label">Surge Blast</div>
+                    <div class="resource-value" id="nukeCount">0</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-label">Revive Kit</div>
+                    <div class="resource-value" id="reviveCount">0</div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button onclick="craftItem('molotov')">CRAFT MOLOTOV<br>(10 scrap + 2 medical)</button>
+                <button onclick="craftItem('grenade')">CRAFT GRENADE<br>(25 scrap + 5 medical)</button>
+                <button onclick="craftItem('revive')">CRAFT REVIVE KIT<br>(15 medical)</button>
+            </div>
+            
+            <div class="button-group">
+                <button onclick="startCombat()">START BATTLE</button>
+            </div>
+        </div>
+        
+        <!-- Combat Screen -->
+        <div id="combatScreen" class="screen">
+            <h2>NIGHT <span id="nightNumber">1</span> - UNDER ATTACK!</h2>
+            
+            <div class="resource-display" style="margin: 10px 0;">
+                <div class="resource-item">
+                    <div class="resource-label">Zombies Left</div>
+                    <div class="resource-value" id="zombiesRemaining">0</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-label">Zombies Killed</div>
+                    <div class="resource-value" id="zombiesKilled">0</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-label">Survivors</div>
+                    <div class="resource-value" id="survivorsRemaining">0</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-label">Ammo</div>
+                    <div class="resource-value" id="ammoRemaining">0</div>
+                </div>
+            </div>
+            
+            <div class="wall-health">
+                <div>Wall Integrity: <span id="wallPercent">100</span>%</div>
+                <div class="health-bar">
+                    <div class="health-fill health-good" id="wallHealthBar" style="width: 100%"></div>
+                </div>
+            </div>
+            
+            <div class="combat-log" id="combatLog"></div>
+            
+            <div class="button-group">
+                <button onclick="useMolotov()" id="molotovButton">USE MOLOTOV (<span id="molotovCombat">0</span>)</button>
+                <button onclick="useGrenade()" id="grenadeButton">USE GRENADE (<span id="grenadeCombat">0</span>)</button>
+                <button onclick="useSurgeBlast()" id="surgeButton">USE SURGE BLAST (<span id="surgeCombat">0</span>)</button>
+            </div>
+        </div>
+        
+        <!-- Night Summary Screen -->
+        <div id="nightSummaryScreen" class="screen">
+            <h2>NIGHT <span id="summaryNight">1</span> - SUMMARY</h2>
+            <div id="nightSummaryContent"></div>
+            <div id="reviveSection" style="display: none;">
+                <h3>Revive Fallen Survivors</h3>
+                <div id="reviveOptions"></div>
+            </div>
+            <div class="button-group">
+                <button onclick="continueTomorrow()">CONTINUE TO NEXT DAY</button>
+            </div>
+        </div>
+        
+        <!-- Victory Screen -->
+        <div id="victoryScreen" class="screen victory-screen">
+            <div class="victory-title">★ ISTANBUL SAVED! ★</div>
+            <div id="victoryText"></div>
+            <div class="stats-grid" id="victoryStats"></div>
+            <div class="button-group">
+                <button onclick="location.reload()">PLAY AGAIN</button>
+            </div>
+        </div>
+        
+        <!-- Game Over Screen -->
+        <div id="gameOverScreen" class="screen">
+            <h1>THE LAST DAWN</h1>
+            <div id="gameOverText"></div>
+            <div class="stats-grid" id="gameOverStats"></div>
+            <div class="button-group">
+                <button onclick="location.reload()">TRY AGAIN</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Popups -->
+    <div class="popup-overlay" id="popupOverlay" onclick="closePopup()"></div>
+    
+    <!-- Help Popup -->
+    <div class="popup" id="helpPopup">
+        <h2>HOW TO PLAY</h2>
+        <p><strong>GOAL:</strong> Create a cure (100 research points) and survive the production phase</p>
+        
+        <h3>DAILY CYCLE:</h3>
+        <ol>
+            <li>Morning - Assign survivors to tasks</li>
+            <li>Evening - Collect resources, see events</li>
+            <li>Prep - Craft combat items</li>
+            <li>Night - Defend against zombies</li>
+            <li>Summary - View results, continue</li>
+        </ol>
+        
+        <h3>RESOURCES:</h3>
+        <ul>
+            <li><strong>Scrap</strong> - Build walls, craft items</li>
+            <li><strong>Food</strong> - Feed survivors (1/day healthy, 2/day sick)</li>
+            <li><strong>Ammo</strong> - Auto-defense (3 per zombie)</li>
+            <li><strong>Medical</strong> - Heal sick/injured, craft items</li>
+        </ul>
+        
+        <h3>COMBAT:</h3>
+        <ul>
+            <li>Defenders auto-shoot zombies</li>
+            <li>Molotovs kill 2 zombies</li>
+            <li>Grenades kill 5 zombies</li>
+            <li>Surge Blast clears all (one-time use)</li>
+        </ul>
+        
+        <div class="button-group">
+            <button onclick="closeHelp()">CLOSE</button>
+        </div>
+    </div>
+    
+    <!-- Trading Popup -->
+    <div class="popup" id="tradePopup">
+        <h2>TRADING POST</h2>
+        <div id="tradeResourceDisplay"></div>
+        <div id="tradeContent"></div>
+        <div class="button-group">
+            <button onclick="closeTrading()">BACK</button>
+        </div>
+    </div>
+    
+    <!-- Trade Specific Resource Popup -->
+    <div class="popup" id="specificTradePopup">
+        <h2 id="specificTradeTitle">GET RESOURCE</h2>
+        <div id="specificTradeResources"></div>
+        <div id="specificTradeOptions"></div>
+        <div class="button-group">
+            <button onclick="closeSpecificTrade()">BACK</button>
+        </div>
+    </div>
+
+    <script src="js/game.js"></script>
+</body>
+</html>
