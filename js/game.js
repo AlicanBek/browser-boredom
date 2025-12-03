@@ -38,7 +38,9 @@
             
             // Combat effectiveness
             MOLOTOV_KILL_RATE: 2,
+            MOLOTOV_COOLDOWN_SECONDS: 4,
             GRENADE_KILL_RATE: 5,
+            GRENADE_COOLDOWN_SECONDS: 6,
             SURGE_BLAST_KILL_RATE: 10,
             AUTO_DEFENSE_KILL_RATE: 1,
             
@@ -124,7 +126,11 @@
             // Combat (mutable)
             combat: {
                 currentZombies: 0,
-                defenders: 0
+                defenders: 0,
+                weaponCooldowns: {
+                    molotov: 0,  // timestamp when weapon will be ready
+                    grenade: 0   // timestamp when weapon will be ready
+                }
             },
             
             // Trading (mutable)
@@ -138,6 +144,12 @@
             milestones: {
                 immuneSurvivorFound: false,
                 labEquipmentFound: false
+            },
+            
+            // Unlocks (mutable)
+            unlocks: {
+                grenadeUnlocked: false,
+                reviveKitUnlocked: false
             },
             
             // Daily routine phase tracking
@@ -274,6 +286,14 @@
         Object.defineProperty(gameState, 'labEquipmentFound', {
             get() { return this.milestones.labEquipmentFound; },
             set(v) { this.milestones.labEquipmentFound = v; }
+        });
+        Object.defineProperty(gameState, 'grenadeUnlocked', {
+            get() { return this.unlocks.grenadeUnlocked; },
+            set(v) { this.unlocks.grenadeUnlocked = v; }
+        });
+        Object.defineProperty(gameState, 'reviveKitUnlocked', {
+            get() { return this.unlocks.reviveKitUnlocked; },
+            set(v) { this.unlocks.reviveKitUnlocked = v; }
         });
         
         // Turkish names
@@ -788,6 +808,7 @@
             
             if (gameState.scavengingPoints >= 10 && !gameState.tradingUnlocked) {
                 gameState.tradingUnlocked = true;
+                gameState.grenadeUnlocked = true;
                 
                 const popup = document.createElement('div');
                 popup.innerHTML = `
@@ -795,6 +816,7 @@
                     <p>Your scavengers made contact with merchants near the Grand Bazaar!</p>
                     <p>You can now trade resources during daytime.</p>
                     <p>Maximum 50 units per day.</p>
+                    <p style="color: #ffff00;">+ GRENADE CRAFTING UNLOCKED</p>
                 `;
                 showEventPopup(popup.innerHTML);
             }
@@ -802,6 +824,7 @@
             if (gameState.scavengingPoints >= 15 && gameState.scavengingPoints - gameState.scavengeAssigned < 15) {
                 gameState.medical += 50;
                 gameState.food += 10;
+                gameState.reviveKitUnlocked = true;
                 
                 // Add new survivors if under cap
                 if (gameState.totalSurvivors < 12) {
@@ -819,6 +842,7 @@
                         <h3>ŞİŞLİ HOSPITAL DISCOVERED!</h3>
                         <p>Scavengers reached the Amerikan Hastanesi!</p>
                         <p>+ 50 medical supplies<br>+ 10 food<br>+ ${newSurvivors} survivors found (${newSurvivorNames.join(', ')})</p>
+                        <p style="color: #ffff00;">+ REVIVE KIT CRAFTING UNLOCKED</p>
                     `;
                     showEventPopup(popup.innerHTML);
                 }
@@ -921,6 +945,10 @@
                     alert('Not enough resources! Need 10 scrap and 2 medical.');
                 }
             } else if (type === 'grenade') {
+                if (!gameState.grenadeUnlocked) {
+                    alert('Grenades not yet unlocked. Establish the trading post or reach more scavenging milestones.');
+                    return;
+                }
                 if (gameState.scrap >= 25 && gameState.medical >= 5) {
                     gameState.scrap -= 25;
                     gameState.medical -= 5;
@@ -930,6 +958,10 @@
                     alert('Not enough resources! Need 25 scrap and 5 medical.');
                 }
             } else if (type === 'revive') {
+                if (!gameState.reviveKitUnlocked) {
+                    alert('Revive kits not yet unlocked. Discover more locations or reach further scavenging milestones.');
+                    return;
+                }
                 if (gameState.medical >= 15) {
                     gameState.medical -= 15;
                     gameState.reviveKit++;
@@ -964,6 +996,8 @@
             gameState.combatActive = true;
             gameState.deadSurvivors = [];
             gameState.combatStartZombieCount = gameState.currentZombies;  // Track initial zombie count
+            gameState.combat.weaponCooldowns.molotov = 0;
+            gameState.combat.weaponCooldowns.grenade = 0;
             
             document.getElementById('nightNumber').textContent = gameState.day;
             document.getElementById('zombiesRemaining').textContent = gameState.currentZombies;
@@ -977,6 +1011,7 @@
             document.getElementById('molotovCombat').textContent = gameState.molotov;
             document.getElementById('grenadeCombat').textContent = gameState.grenade;
             document.getElementById('surgeCombat').textContent = gameState.surgeBlast;
+            updateWeaponCooldownDisplay();
             
             // Clear combat log
             document.getElementById('combatLog').innerHTML = '';
@@ -985,7 +1020,14 @@
             addCombatMessage(`Night ${gameState.day} - ${gameState.currentZombies} zombies approaching!`);
             addCombatMessage(`${gameState.defenders} defenders ready!`);
             
-            setTimeout(() => runCombat(), 1000);
+            setTimeout(() => runCombat(), 1500);
+            
+            // Start cooldown display update interval (every second)
+            gameState.combatCooldownInterval = setInterval(() => {
+                if (gameState.combatActive) {
+                    updateWeaponCooldownDisplay();
+                }
+            }, 1000);
         }
         
         function runCombat() {
@@ -1024,6 +1066,9 @@
                 }
             }
             
+            // Decrement weapon cooldowns (update display to show real-time countdown)
+            updateWeaponCooldownDisplay();
+            
             // Zombies damage wall
             const damagePerZombie = 2;
             const totalDamage = Math.min(gameState.currentZombies * damagePerZombie * 0.5, gameState.wallHealth);
@@ -1047,7 +1092,7 @@
             updateWallDisplay();
             
             // Continue combat
-            setTimeout(() => runCombat(), 2000);
+            setTimeout(() => runCombat(), 3000);
         }
         
         function causeCasualty() {
@@ -1104,6 +1149,31 @@
             }
         }
         
+        function updateWeaponCooldownDisplay() {
+            const now = Date.now();
+            const molotovBtn = document.getElementById('molotovButton');
+            const grenadeBtn = document.getElementById('grenadeButton');
+            
+            const molotovTimeRemaining = Math.max(0, Math.ceil((gameState.combat.weaponCooldowns.molotov - now) / 1000));
+            const grenadeTimeRemaining = Math.max(0, Math.ceil((gameState.combat.weaponCooldowns.grenade - now) / 1000));
+            
+            if (molotovTimeRemaining > 0) {
+                molotovBtn.disabled = true;
+                molotovBtn.textContent = `USE MOLOTOV - Ready in ${molotovTimeRemaining}s`;
+            } else {
+                molotovBtn.disabled = false;
+                molotovBtn.innerHTML = `USE MOLOTOV (<span id="molotovCombat">${gameState.molotov}</span>)`;
+            }
+            
+            if (grenadeTimeRemaining > 0) {
+                grenadeBtn.disabled = true;
+                grenadeBtn.textContent = `USE GRENADE - Ready in ${grenadeTimeRemaining}s`;
+            } else {
+                grenadeBtn.disabled = false;
+                grenadeBtn.innerHTML = `USE GRENADE (<span id="grenadeCombat">${gameState.grenade}</span>)`;
+            }
+        }
+        
         function addCombatMessage(message, type = '') {
             const log = document.getElementById('combatLog');
             const messageDiv = document.createElement('div');
@@ -1116,15 +1186,23 @@
         }
         
         function useMolotov() {
+            const now = Date.now();
+            if (gameState.combat.weaponCooldowns.molotov > now) {
+                const secondsRemaining = Math.ceil((gameState.combat.weaponCooldowns.molotov - now) / 1000);
+                addCombatMessage(`Molotov on cooldown! Ready in ${secondsRemaining}s`, 'warning');
+                return;
+            }
             if (gameState.molotov > 0 && gameState.currentZombies > 0) {
                 gameState.molotov--;
-                const killed = Math.min(2, gameState.currentZombies);
+                gameState.combat.weaponCooldowns.molotov = now + (GAME_CONSTANTS.MOLOTOV_COOLDOWN_SECONDS * 1000);
+                const killed = Math.min(GAME_CONSTANTS.MOLOTOV_KILL_RATE, gameState.currentZombies);
                 gameState.currentZombies -= killed;
                 gameState.totalZombiesKilled += killed;
                 document.getElementById('molotovCombat').textContent = gameState.molotov;
                 document.getElementById('zombiesRemaining').textContent = gameState.currentZombies;
                 document.getElementById('zombiesKilled').textContent = gameState.totalZombiesKilled;
                 addCombatMessage(`Molotov thrown! ${killed} zombies eliminated!`);
+                updateWeaponCooldownDisplay();
                 
                 if (gameState.currentZombies <= 0) {
                     endCombat(true);
@@ -1133,15 +1211,23 @@
         }
         
         function useGrenade() {
+            const now = Date.now();
+            if (gameState.combat.weaponCooldowns.grenade > now) {
+                const secondsRemaining = Math.ceil((gameState.combat.weaponCooldowns.grenade - now) / 1000);
+                addCombatMessage(`Grenade on cooldown! Ready in ${secondsRemaining}s`, 'warning');
+                return;
+            }
             if (gameState.grenade > 0 && gameState.currentZombies > 0) {
                 gameState.grenade--;
-                const killed = Math.min(5, gameState.currentZombies);
+                gameState.combat.weaponCooldowns.grenade = now + (GAME_CONSTANTS.GRENADE_COOLDOWN_SECONDS * 1000);
+                const killed = Math.min(GAME_CONSTANTS.GRENADE_KILL_RATE, gameState.currentZombies);
                 gameState.currentZombies -= killed;
                 gameState.totalZombiesKilled += killed;
                 document.getElementById('grenadeCombat').textContent = gameState.grenade;
                 document.getElementById('zombiesRemaining').textContent = gameState.currentZombies;
                 document.getElementById('zombiesKilled').textContent = gameState.totalZombiesKilled;
                 addCombatMessage(`Grenade exploded! ${killed} zombies destroyed!`);
+                updateWeaponCooldownDisplay();
                 
                 if (gameState.currentZombies <= 0) {
                     endCombat(true);
@@ -1167,6 +1253,12 @@
         
         function endCombat(victory) {
             gameState.combatActive = false;
+            
+            // Clear cooldown display update interval
+            if (gameState.combatCooldownInterval) {
+                clearInterval(gameState.combatCooldownInterval);
+                gameState.combatCooldownInterval = null;
+            }
             
             setTimeout(() => {
                 document.getElementById('combatScreen').classList.remove('active');
