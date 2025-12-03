@@ -608,7 +608,7 @@
                 
                 // Random chance for medical
                 for (let i = 0; i < gameState.scavengeAssigned; i++) {
-                    if (Math.random() < 0.3) medicalFound += 1.5;
+                    if (Math.random() < 0.35) medicalFound += 2;
                 }
                 
                 // New survivors joining the camp (scavengers find people)
