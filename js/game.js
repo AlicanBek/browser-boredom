@@ -643,9 +643,8 @@
             if (gameState.researchAssigned > 0 && gameState.immuneSurvivorFound) {
                 const researchPoints = gameState.researchAssigned * (gameState.labEquipmentFound ? 3 : 1);
                 gameState.cureProgress += researchPoints;
+                gameState.lastResearchPoints = researchPoints;  // Store for animation
                 report += `<p><strong>Research:</strong> +${researchPoints} cure points (${gameState.cureProgress}/100)</p>`;
-                // Trigger animation after a short delay so player sees it on morning screen
-                setTimeout(() => animateCureProgress(researchPoints), 500);
             } else if (gameState.researchAssigned > 0 && !gameState.immuneSurvivorFound) {
                 report += `<p><strong>Research:</strong> Cannot progress without immune survivor</p>`;
             }
@@ -1552,6 +1551,12 @@
         
         updateDisplay();
         updateDailyRoutineIndicator();
+        
+        // Trigger cure animation now that morning screen is visible
+        if (gameState.lastResearchPoints && gameState.lastResearchPoints > 0) {
+            animateCureProgress(gameState.lastResearchPoints);
+            gameState.lastResearchPoints = 0;  // Clear after animation
+        }
     }
     
     function victory() {
