@@ -487,8 +487,7 @@
         .milestone-progress {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-top: 10px;
+            justify-content: flex-start;
         }
     </style>
 </head>
@@ -561,10 +560,10 @@
             </div>
             
             <div class="milestone-tracker" id="milestoneTracker" style="display: none;">
-                <div style="font-size: 1em; margin-bottom: 4px;">Scavenging Progress</div>
-                <div class="milestone-progress" style="gap: 10px;">
-                    <span id="scavProgress" style="font-size: 0.95em;">0/5</span>
+                <div class="milestone-progress" style="gap: 15px;">
+                    <div style="font-size: 1em;">Scavenging Progress</div>
                     <span id="nextMilestone" style="font-size: 0.95em;">Next: Immune</span>
+                    <span id="scavProgress" style="font-size: 0.95em;">0/5</span>
                 </div>
             </div>
             
