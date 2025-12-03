@@ -1249,7 +1249,7 @@
             document.getElementById('wallStrengthDisplay').textContent = Math.floor(gameState.wallHealth);
             
             // Update cure progress
-            const curePercent = Math.min(100, (gameState.cureProgress / 100) * 100);
+            const curePercent = Math.min(100, gameState.cureProgress);
             document.getElementById('cureProgress').style.width = curePercent + '%';
             document.getElementById('cureText').textContent = `Cure: ${gameState.cureProgress}/100`;
             document.getElementById('curePercent').textContent = `${Math.floor(curePercent)}%`;
@@ -1489,6 +1489,9 @@
             
             // Display final resource counts
             report += `<p style="border-top: 1px solid #00ff41; padding-top: 6px; margin-top: 6px;"><strong>Current resources:</strong> Scrap: ${gameState.scrap} | Food: ${gameState.food} | Ammo: ${gameState.ammo} | Medical: ${gameState.medical}</p>`;
+            
+            // Display survivor status
+            report += `<p><strong>Survivors:</strong> ${gameState.totalSurvivors}/12 (Healthy: ${gameState.healthySurvivors} | Injured: ${gameState.injuredSurvivors} | Sick: ${gameState.sickSurvivors})</p>`;
             
             // Check for starvation
             if (gameState.food < 0) {
