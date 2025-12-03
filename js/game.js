@@ -644,6 +644,8 @@
                 const researchPoints = gameState.researchAssigned * (gameState.labEquipmentFound ? 3 : 1);
                 gameState.cureProgress += researchPoints;
                 report += `<p><strong>Research:</strong> +${researchPoints} cure points (${gameState.cureProgress}/100)</p>`;
+                // Trigger animation after a short delay so player sees it on morning screen
+                setTimeout(() => animateCureProgress(researchPoints), 500);
             } else if (gameState.researchAssigned > 0 && !gameState.immuneSurvivorFound) {
                 report += `<p><strong>Research:</strong> Cannot progress without immune survivor</p>`;
             }
@@ -1103,6 +1105,7 @@
             gameState.wallHealth -= totalDamage;
             
             if (totalDamage > 0) {
+                animateWallDamage();
                 addCombatMessage(`Wall taking damage! ${Math.floor(gameState.wallHealth)}% remaining`);
             }
             
@@ -1203,6 +1206,61 @@
                 grenadeBtn.disabled = false;
                 grenadeBtn.innerHTML = `USE GRENADE (<span id="grenadeCombat">${gameState.grenade}</span>)`;
             }
+        }
+        
+        function animateCureProgress(points) {
+            const cureText = document.getElementById('cureText');
+            const cureProgress = document.getElementById('cureProgress');
+            
+            // Add flash animation to cure display
+            cureText.classList.add('cure-progress-animating');
+            cureProgress.classList.add('growing');
+            
+            // Create flares
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const flare = document.createElement('div');
+                    flare.className = 'cure-flare';
+                    flare.textContent = '+';
+                    flare.style.left = Math.random() * 100 + '%';
+                    cureProgress.parentElement.style.position = 'relative';
+                    cureProgress.parentElement.appendChild(flare);
+                    
+                    setTimeout(() => flare.remove(), 2000);
+                }, i * 200);
+            }
+            
+            // Remove animation classes after they complete
+            setTimeout(() => {
+                cureText.classList.remove('cure-progress-animating');
+                cureProgress.classList.remove('growing');
+            }, 2000);
+        }
+        
+        function animateWallDamage() {
+            const wallBar = document.getElementById('wallHealthBar');
+            
+            // Add damage animation
+            wallBar.classList.add('wall-taking-damage');
+            
+            // Create damage flares
+            for (let i = 0; i < 2; i++) {
+                setTimeout(() => {
+                    const flare = document.createElement('div');
+                    flare.className = 'wall-damage-flare';
+                    flare.textContent = '!';
+                    flare.style.left = Math.random() * 100 + '%';
+                    wallBar.parentElement.style.position = 'relative';
+                    wallBar.parentElement.appendChild(flare);
+                    
+                    setTimeout(() => flare.remove(), 1500);
+                }, i * 150);
+            }
+            
+            // Remove animation class after it completes
+            setTimeout(() => {
+                wallBar.classList.remove('wall-taking-damage');
+            }, 1500);
         }
         
         function addCombatMessage(message, type = '') {
@@ -1398,21 +1456,31 @@
         gameState.day++;
         gameState.currentPhase = 0;  // Reset to Morning phase
         
-        // Reset assignments
-        gameState.scavengeAssigned = 0;
-        gameState.researchAssigned = 0;
-        gameState.buildingAssigned = 0;
-        gameState.healingAssigned = 0;
+        // Reset assignments only if there are injured or sick survivors
+        // Otherwise, keep previous assignments for convenience
+        if (gameState.injuredSurvivors > 0 || gameState.sickSurvivors > 0) {
+            gameState.scavengeAssigned = 0;
+            gameState.researchAssigned = 0;
+            gameState.buildingAssigned = 0;
+            gameState.healingAssigned = 0;
+            
+            // Reset assignment display
+            document.getElementById('scavengeValue').textContent = '0';
+            document.getElementById('researchValue').textContent = '0';
+            document.getElementById('buildingValue').textContent = '0';
+            document.getElementById('healingValue').textContent = '0';
+            document.getElementById('totalAssigned').textContent = '0';
+        } else {
+            // Keep previous assignments, just update the display
+            document.getElementById('scavengeValue').textContent = gameState.scavengeAssigned;
+            document.getElementById('researchValue').textContent = gameState.researchAssigned;
+            document.getElementById('buildingValue').textContent = gameState.buildingAssigned;
+            document.getElementById('healingValue').textContent = gameState.healingAssigned;
+            document.getElementById('totalAssigned').textContent = gameState.scavengeAssigned + gameState.researchAssigned + gameState.buildingAssigned + gameState.healingAssigned;
+        }
         
         // Update available survivors
         gameState.availableSurvivors = gameState.healthySurvivors + gameState.injuredSurvivors;
-        
-        // Reset assignment display
-        document.getElementById('scavengeValue').textContent = '0';
-        document.getElementById('researchValue').textContent = '0';
-        document.getElementById('buildingValue').textContent = '0';
-        document.getElementById('healingValue').textContent = '0';
-        document.getElementById('totalAssigned').textContent = '0';
         
         // Show game screen
         document.getElementById('nightSummaryScreen').classList.remove('active');

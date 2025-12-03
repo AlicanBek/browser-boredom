@@ -484,3 +484,94 @@ button:disabled {
     font-size: 0.95em;
     color: #00ff41;
 }
+
+/* Cure progress animation */
+@keyframes cureFlash {
+    0% {
+        box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(0, 255, 65, 0.8), 0 0 30px rgba(0, 255, 65, 0.5);
+    }
+    100% {
+        box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+    }
+}
+
+@keyframes cureProgressGrow {
+    from {
+        transform: scaleX(0);
+    }
+    to {
+        transform: scaleX(1);
+    }
+}
+
+@keyframes cureFlare {
+    0% {
+        opacity: 1;
+        transform: translateY(-10px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+}
+
+.cure-progress-animating {
+    animation: cureFlash 1.5s ease-in-out;
+}
+
+.progress-fill.growing {
+    animation: cureProgressGrow 2s ease-out;
+    transform-origin: left;
+}
+
+.cure-flare {
+    position: absolute;
+    pointer-events: none;
+    font-size: 24px;
+    font-weight: bold;
+    color: #00ff41;
+    text-shadow: 0 0 10px #00ff41;
+    animation: cureFlare 2s ease-out forwards;
+}
+
+/* Wall damage animation */
+@keyframes wallDamage {
+    0% {
+        box-shadow: inset 0 0 15px rgba(255, 51, 51, 0.8);
+    }
+    50% {
+        box-shadow: inset 0 0 25px rgba(255, 51, 51, 1);
+    }
+    100% {
+        box-shadow: inset 0 0 5px rgba(255, 51, 51, 0.3);
+    }
+}
+
+@keyframes wallShake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-3px);
+    }
+    75% {
+        transform: translateX(3px);
+    }
+}
+
+.wall-taking-damage {
+    animation: wallDamage 1.5s ease-out, wallShake 0.5s ease-in-out;
+}
+
+.wall-damage-flare {
+    position: absolute;
+    pointer-events: none;
+    font-size: 20px;
+    font-weight: bold;
+    color: #ff3333;
+    text-shadow: 0 0 10px #ff3333;
+    animation: cureFlare 1.5s ease-out forwards;
+}
