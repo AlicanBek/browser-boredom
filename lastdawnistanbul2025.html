@@ -561,10 +561,10 @@
             </div>
             
             <div class="milestone-tracker" id="milestoneTracker" style="display: none;">
-                <div style="font-size: 0.85em; margin-bottom: 4px;">Scavenging Progress</div>
+                <div style="font-size: 1em; margin-bottom: 4px;">Scavenging Progress</div>
                 <div class="milestone-progress" style="gap: 10px;">
-                    <span id="scavProgress" style="font-size: 0.8em;">0/5</span>
-                    <span id="nextMilestone" style="font-size: 0.8em;">Next: Immune</span>
+                    <span id="scavProgress" style="font-size: 0.95em;">0/5</span>
+                    <span id="nextMilestone" style="font-size: 0.95em;">Next: Immune</span>
                 </div>
             </div>
             
@@ -1321,28 +1321,29 @@
             
             // Process scavenging
             if (gameState.scavengeAssigned > 0) {
-                const scrapFound = gameState.scavengeAssigned * 50;
-                const foodFound = gameState.scavengeAssigned * 30;
+                const scrapFound = gameState.scavengeAssigned * 30;
+                const foodFound = gameState.scavengeAssigned * 8;
                 
                 // Calculate expected zombie count for tonight to determine ammo needed
                 const expectedZombies = calculateZombieCount();
                 // Each zombie requires 3 ammo to kill (from runCombat), add 20% buffer
-                const ammoNeeded = Math.ceil(expectedZombies * 3 * 1.2);
+                const ammoNeeded = Math.ceil(expectedZombies * 3 * 1);
                 // Base ammo per scavenger + the calculated need
-                const ammoFound = gameState.scavengeAssigned * 30 + ammoNeeded;
+                const ammoFound = gameState.scavengeAssigned * 6 + ammoNeeded;
                 
                 let medicalFound = 0;
                 
                 // Random chance for medical
                 for (let i = 0; i < gameState.scavengeAssigned; i++) {
-                    if (Math.random() < 0.2) medicalFound += 10;
+                    if (Math.random() < 0.2) medicalFound += 5;
                 }
                 
                 // New survivors joining the camp (scavengers find people)
+                // Cannot have more than 12 survivors
                 let survivorsFound = 0;
                 let newSurvivorNames = [];
                 for (let i = 0; i < gameState.scavengeAssigned; i++) {
-                    if (Math.random() < 0.4) {
+                    if (gameState.totalSurvivors < 12 && Math.random() < 0.3) {
                         const newSurvivor = addNewSurvivor('healthy');
                         newSurvivorNames.push(newSurvivor.name);
                         survivorsFound++;
@@ -1377,7 +1378,7 @@
             
             // Process building
             if (gameState.buildingAssigned > 0) {
-                const wallRepair = gameState.buildingAssigned * 12;
+                const wallRepair = gameState.buildingAssigned * 5;
                 const oldWall = gameState.wallHealth;
                 gameState.wallHealth = Math.min(100, gameState.wallHealth + wallRepair);
                 report += `<p><strong>Building:</strong> Wall repaired ${oldWall}% → ${gameState.wallHealth}%</p>`;
