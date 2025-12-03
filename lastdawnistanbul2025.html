@@ -575,7 +575,7 @@
             </div>
             
             <div id="survivorInfo" style="margin: 8px 0; font-size: 0.9em;">
-                <div>Survivors: <span id="totalSurvivors">3</span>/12 (H:<span id="healthySurvivors">3</span> I:<span id="injuredSurvivors">0</span> S:<span id="sickSurvivors">0</span>) | Wall: <span id="wallStrengthDisplay">100</span>%</div>
+                <div>Survivors: <span id="totalSurvivors">3</span>/12 (Healthy:<span id="healthySurvivors">3</span> Injured:<span id="injuredSurvivors">0</span> Sick:<span id="sickSurvivors">0</span>) | Wall: <span id="wallStrengthDisplay">100</span>%</div>
             </div>
             
             <div id="assignmentSection">
@@ -610,13 +610,14 @@
                         <button onclick="adjustAssignment('building', 1)" id="buildingPlusBtn">+</button>
                     </div>
                 </div>
-                <div class="survivor-assignment">
+                <div id="healingAssignment" class="survivor-assignment">
                     <span>Healing (Heal injured and sick survivors)</span>
                     <div class="assignment-controls">
-                        <button onclick="adjustAssignment('healing', -1)">−</button>
+                        <button id="healingMinusBtn" onclick="adjustAssignment('healing', -1)">−</button>
                         <span class="assignment-value" id="healingValue">0</span>
-                        <button onclick="adjustAssignment('healing', 1)">+</button>
+                        <button id="healingPlusBtn" onclick="adjustAssignment('healing', 1)">+</button>
                     </div>
+                    <div id="healingStatus" style="color: #00FF00; text-align: center; font-size: 0.85em; margin-top: 4px; display: none;"></div>
                 </div>
                 
                 <div style="margin: 8px 0; text-align: center; font-size: 0.9em;">
@@ -1274,6 +1275,18 @@
                 document.getElementById('buildingStatus').style.display = 'none';
             }
             
+            // Update healing assignment availability
+            if (gameState.injuredSurvivors === 0 && gameState.sickSurvivors === 0) {
+                document.getElementById('healingMinusBtn').disabled = true;
+                document.getElementById('healingPlusBtn').disabled = true;
+                document.getElementById('healingStatus').textContent = 'No injured or sick survivors';
+                document.getElementById('healingStatus').style.display = 'block';
+            } else {
+                document.getElementById('healingMinusBtn').disabled = false;
+                document.getElementById('healingPlusBtn').disabled = false;
+                document.getElementById('healingStatus').style.display = 'none';
+            }
+            
             // Update day title
             document.getElementById('dayTitle').textContent = `DAY ${gameState.day} - KARAKÖY`;
             
@@ -1322,6 +1335,12 @@
             // Prevent building assignment when wall is at 100%
             if (type === 'building' && gameState.wallHealth >= 100) {
                 alert('Wall is fully repaired');
+                return;
+            }
+            
+            // Prevent healing assignment when no injured or sick survivors
+            if (type === 'healing' && gameState.injuredSurvivors === 0 && gameState.sickSurvivors === 0) {
+                alert('No injured or sick survivors to heal');
                 return;
             }
             
