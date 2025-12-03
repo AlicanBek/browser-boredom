@@ -362,8 +362,8 @@
                 You have the knowledge to create a cure, but you need time, resources, and survivors.<br><br>
                 The emergency radio crackles:<br>
                 "If anyone's alive... we're fortifying Karaköy dock. Please... we need help."<br><br>
-                Your goal: <br>Develop the cure and save Istanbul. It will take 100 research points.<br><br>
-				Hold back the zombie hordes every night, reinforce your wall for protection, and keep your ammo locked and loaded!
+                YOUR GOAL: <br><br>- Develop the cure and save Istanbul. It will take 100 research points.<br>
+				- Hold back the zombie hordes every night, reinforce your wall for protection, and keep your ammo locked and loaded!
             `;
             
             document.getElementById('storyText').innerHTML = storyText;
