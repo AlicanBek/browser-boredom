@@ -362,9 +362,8 @@
                 You have the knowledge to create a cure, but you need time, resources, and survivors.<br><br>
                 The emergency radio crackles:<br>
                 "If anyone's alive... we're fortifying Karaköy dock. Please... we need help."<br><br>
-                Your goal: <br>Develop the cure and save Istanbul.<br>
-                It will take at least 100 research points.<br><br>
-				Hold back the endless zombie hordes every night, reinforce your walls for protection, and keep your ammo locked and loaded!
+                Your goal: <br>Develop the cure and save Istanbul. It will take 100 research points.<br><br>
+				Hold back the zombie hordes every night, reinforce your wall for protection, and keep your ammo locked and loaded!
             `;
             
             document.getElementById('storyText').innerHTML = storyText;
@@ -389,6 +388,9 @@
             
             updateDisplay();
             updateDailyRoutineIndicator();
+            
+            // Show welcome modal
+            showWelcomeModal();
         }
         
         function updateDailyRoutineIndicator() {
@@ -1591,5 +1593,24 @@
         document.querySelectorAll('.popup').forEach(popup => {
             popup.classList.remove('active');
         });
+        document.getElementById('popupOverlay').classList.remove('active');
+    }
+    
+    function showWelcomeModal() {
+        const welcomeContent = `
+            <p>Welcome to the Karaköy Survivor Camp, <strong>${gameState.playerName}</strong>.</p>
+            <p>Every morning, assign your ${gameState.availableSurvivors} healthy survivors to critical tasks. 
+            Balance your resources wisely—scavengers gather supplies, researchers develop the cure, builders fortify walls, 
+            and healers tend to the sick and injured.</p>
+            <p><strong>Resources:</strong> Scrap (${gameState.scrap}), Food (${gameState.food}), Ammo (${gameState.ammo}), Medical (${gameState.medical})</p>
+            <p>Plan carefully. Each decision affects your survival.</p>
+        `;
+        document.getElementById('welcomeContent').innerHTML = welcomeContent;
+        document.getElementById('welcomePopup').classList.add('active');
+        document.getElementById('popupOverlay').classList.add('active');
+    }
+    
+    function closeWelcome() {
+        document.getElementById('welcomePopup').classList.remove('active');
         document.getElementById('popupOverlay').classList.remove('active');
     }
