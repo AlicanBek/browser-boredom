@@ -242,7 +242,7 @@
         
         .progress-fill {
             height: 100%;
-            background: radial-gradient(right at 30% 50%, #ffffff, #6666ff 40%, #6600cc);
+            background: radial-gradient(circle at 30% 50%, #ffffff, #6666ff 40%, #6600cc);
             transition: width 0.5s;
             display: flex;
             align-items: center;
@@ -1688,7 +1688,7 @@
             
             document.getElementById('prepInfo').innerHTML = `
                 <p>Night ${gameState.day} approaching: ${zombieCount} zombies expected</p>
-                <p>Defenders ready: ${defenders} (${gameState.sickSurvivors} sick & injured cannot fight)</p>
+                <p>Defenders ready: ${defenders} (${gameState.sickSurvivors} sick or injured cannot fight)</p>
                 <p>Current resources: Scrap: ${gameState.scrap} | Food: ${gameState.food} | Ammo: ${gameState.ammo} | Medical: ${gameState.medical}</p>
                 <p>Wall Integrity: ${Math.floor(gameState.wallHealth)}%</p>
             
@@ -1757,7 +1757,7 @@
             
             document.getElementById('prepInfo').innerHTML = `
                 <p>Night ${gameState.day} approaching: ${calculateZombieCount()} zombies expected</p>
-                <p>Defenders ready: ${gameState.healthySurvivors + gameState.injuredSurvivors} (${gameState.sickSurvivors} sick & injured cannot fight)</p>
+                <p>Defenders ready: ${gameState.healthySurvivors + gameState.injuredSurvivors} (${gameState.sickSurvivors} sick or injured cannot fight)</p>
                 <p>Current resources: Scrap: ${gameState.scrap} | Food: ${gameState.food} | Ammo: ${gameState.ammo} | Medical: ${gameState.medical}</p>
             `;
         }
