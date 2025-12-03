@@ -351,7 +351,7 @@
             border: 1px solid #00ff41;
             padding: 12px;
             margin: 12px 0;
-            max-height: 180px;
+            height: 200px;
             overflow-y: auto;
             font-size: 0.85em;
         }
@@ -588,9 +588,12 @@
                         <button onclick="adjustAssignment('scavenge', 1)">+</button>
                     </div>
                 </div>
-                <div class="survivor-assignment">
-                    <span>Research (Work on cure)</span>
-                    <div class="assignment-controls">
+                <div class="survivor-assignment" id="researchAssignment">
+                    <div style="width: 100%;">
+                        <div>Research (Work on cure)</div>
+                        <div id="researchStatus" style="font-size: 0.8em; color: #ffff00; margin-top: 3px;">Awaiting immune survivor...</div>
+                    </div>
+                    <div class="assignment-controls" id="researchControls" style="display: none;">
                         <button onclick="adjustAssignment('research', -1)">−</button>
                         <span class="assignment-value" id="researchValue">0</span>
                         <button onclick="adjustAssignment('research', 1)">+</button>
@@ -618,7 +621,7 @@
                 </div>
                 
                 <div class="button-group">
-                    <button onclick="confirmDay()" id="confirmButton">CONFIRM DAY</button>
+                    <button onclick="confirmDay()" id="confirmButton">CONFIRM ASSIGNMENTS</button>
                     <button onclick="openTrading()" id="tradeButton" style="display: none;">TRADE RESOURCES</button>
                 </div>
             </div>
@@ -1245,6 +1248,15 @@
             document.getElementById('cureText').textContent = `Cure: ${gameState.cureProgress}/100`;
             document.getElementById('curePercent').textContent = `${Math.floor(curePercent)}%`;
             
+            // Update research assignment availability
+            if (gameState.immuneSurvivorFound) {
+                document.getElementById('researchControls').style.display = 'flex';
+                document.getElementById('researchStatus').style.display = 'none';
+            } else {
+                document.getElementById('researchControls').style.display = 'none';
+                document.getElementById('researchStatus').style.display = 'block';
+            }
+            
             // Update day title
             document.getElementById('dayTitle').textContent = `DAY ${gameState.day} - KARAKÖY`;
             
@@ -1284,6 +1296,12 @@
         }
         
         function adjustAssignment(type, change) {
+            // Prevent research assignment until immune survivor is found
+            if (type === 'research' && !gameState.immuneSurvivorFound) {
+                alert('Cannot assign research until immune survivor is found');
+                return;
+            }
+            
             const assigned = gameState[type + 'Assigned'];
             const newValue = assigned + change;
             
@@ -1402,7 +1420,7 @@
             // Food consumption
             const foodNeeded = gameState.healthySurvivors + (gameState.injuredSurvivors * 2) + (gameState.sickSurvivors * 2);
             gameState.food -= foodNeeded;
-            report += `<p><strong>Food consumed:</strong> ${foodNeeded}</p>`;
+            report += `<p><strong>Food consumed:</strong> -${foodNeeded}</p>`;
             
             // Display final resource counts
             report += `<p style="border-top: 1px solid #00ff41; padding-top: 6px; margin-top: 6px;"><strong>Current resources:</strong> Scrap: ${gameState.scrap} | Food: ${gameState.food} | Ammo: ${gameState.ammo} | Medical: ${gameState.medical}</p>`;
@@ -1495,6 +1513,8 @@
             if (gameState.scavengingPoints >= 5 && !gameState.immuneSurvivorFound) {
                 gameState.immuneSurvivorFound = true;
                 const immuneSurvivor = addNewSurvivor('healthy');
+                gameState.totalSurvivors++;
+                gameState.healthySurvivors++;
                 
                 const popup = document.createElement('div');
                 popup.innerHTML = `
@@ -1602,6 +1622,7 @@
                 <p>Night ${gameState.day} approaching: ${zombieCount} zombies expected</p>
                 <p>Defenders ready: ${defenders} (${gameState.sickSurvivors} sick cannot fight)</p>
                 <p>Current resources: Scrap: ${gameState.scrap} | Food: ${gameState.food} | Ammo: ${gameState.ammo} | Medical: ${gameState.medical}</p>
+                <p>Wall Integrity: ${Math.floor(gameState.wallHealth)}%</p>
             
             `;
             
@@ -1669,7 +1690,7 @@
             document.getElementById('prepInfo').innerHTML = `
                 <p>Night ${gameState.day} approaching: ${calculateZombieCount()} zombies expected</p>
                 <p>Defenders ready: ${gameState.healthySurvivors + gameState.injuredSurvivors} (${gameState.sickSurvivors} sick cannot fight)</p>
-                <p>Current resources: Scrap: ${gameState.scrap}, Medical: ${gameState.medical}</p>
+                <p>Current resources: Scrap: ${gameState.scrap} | Food: ${gameState.food} | Ammo: ${gameState.ammo} | Medical: ${gameState.medical}</p>
             `;
         }
         
