@@ -1599,10 +1599,9 @@
     function showWelcomeModal() {
         const welcomeContent = `
             <p>Welcome to the Karaköy Survivor Camp, <strong>${gameState.playerName}</strong>.</p><br>
-            <p>Every morning, assign your healthy survivors to critical tasks. <br>
-            <p>Balance your resources wisely—scavengers gather supplies, researchers develop the cure, builders fortify walls, 
-            and healers heal the sick and injured.</p><br>
-            <p>As night falls, you will start to prepare for relentless zombie waves.</p><br>
+            <p>Every morning, assign your survivors to critical tasks.</p><br>
+            <p>Balance your resources wisely—scavengers gather supplies, researchers develop the cure, builders fortify walls, and healers tend to the sick and injured.</p><br>
+            <p>As night falls, you must prepare for relentless zombie waves.</p><br>
             <p>Plan carefully. Each decision affects your survival.</p>
         `;
         document.getElementById('welcomeContent').innerHTML = welcomeContent;
