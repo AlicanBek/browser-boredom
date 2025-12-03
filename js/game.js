@@ -1,5 +1,4 @@
-<script>
-        // ============================================================================
+// ============================================================================
         // GAME CONSTANTS
         // ============================================================================
         // These values define game balance and should not change during gameplay
@@ -1594,4 +1593,3 @@
         });
         document.getElementById('popupOverlay').classList.remove('active');
     }
-</script>
