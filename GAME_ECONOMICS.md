@@ -18,15 +18,15 @@
 | Resource | Amount | Notes |
 |----------|--------|-------|
 | Scrap | 20 | Guaranteed |
-| Food | 8 | Guaranteed |
-| Ammo | 6 + calculated | Base + expected zombies × 3 |
+| Food | 4 | Guaranteed |
+| Ammo | 3 + calculated | Base + expected zombies × 3 |
 | Medical | ~1-2 (avg) | 30% chance per scavenger (5 per hit) |
-| New Survivors | 30% chance | Capped at 12 total |
+| New Survivors | 25% chance | Capped at 12 total |
 | **Scavenging Points** | **1 per scavenger** | For milestones |
 
 **Example with 2 Scavengers:**
 - Scrap: +60
-- Food: +16
+- Food: +8
 - Ammo: +12 (base) + 24 (Day 4 zombies: 8 base) = +36
 - Medical: +2 (expected)
 - Scavenging Points: +2
@@ -97,6 +97,35 @@
 - Molotov: 10 scrap + 2 medical per 3 kills = **3.33 scrap + 0.67 medical per kill**
 - Grenade: 25 scrap + 5 medical per 5 kills = **5 scrap + 1 medical per kill**
 - Auto-defense: 3 ammo per kill = **3 ammo per kill**
+
+---
+
+### Trading Post Exchange Rates
+
+**Get Scrap:**
+- Trade 1 Food → Get 1 Scrap (1:1)
+- Trade 1 Medical → Get 3 Scrap (1:3)
+- Trade 1 Ammo → Get 2 Scrap (1:2)
+
+**Get Food:**
+- Trade 2 Scrap → Get 1 Food (2:1)
+- Trade 1 Medical → Get 2 Food (1:2)
+- Trade 1 Ammo → Get 1 Food (1:1)
+
+**Get Medical:**
+- Trade 5 Food → Get 1 Medical (3:1)
+- Trade 10 Scrap → Get 1 Medical (5:1)
+- Trade 4 Ammo → Get 1 Medical (2:1)
+
+**Get Ammo:**
+- Trade 2 Food → Get 1 Ammo (2:1)
+- Trade 4 Scrap → Get 1 Ammo (3:1)
+- Trade 1 Medical → Get 1 Ammo (1:1)
+
+**Notes:**
+- Daily trading limit: 50 units per day
+- Unlocked at Day 10 (Trading Post milestone)
+- Used for balancing resource surpluses/deficits
 
 ---
 

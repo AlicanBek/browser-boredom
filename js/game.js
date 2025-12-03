@@ -38,7 +38,7 @@
             
             // Combat effectiveness
             MOLOTOV_KILL_RATE: 2,
-            GRENADE_KILL_RATE: 6,
+            GRENADE_KILL_RATE: 5,
             SURGE_BLAST_KILL_RATE: 10,
             AUTO_DEFENSE_KILL_RATE: 1,
             
@@ -573,21 +573,21 @@
             
             // Process scavenging
             if (gameState.scavengeAssigned > 0) {
-                const scrapFound = gameState.scavengeAssigned * 30;
-                const foodFound = gameState.scavengeAssigned * 8;
+                const scrapFound = gameState.scavengeAssigned * 20;
+                const foodFound = gameState.scavengeAssigned * 4;
                 
                 // Calculate expected zombie count for tonight to determine ammo needed
                 const expectedZombies = calculateZombieCount();
                 // Each zombie requires 3 ammo to kill (from runCombat), add 20% buffer
                 const ammoNeeded = Math.ceil(expectedZombies * 3 * 1);
                 // Base ammo per scavenger + the calculated need
-                const ammoFound = gameState.scavengeAssigned * 6 + ammoNeeded;
+                const ammoFound = gameState.scavengeAssigned * 3 + ammoNeeded;
                 
                 let medicalFound = 0;
                 
                 // Random chance for medical
                 for (let i = 0; i < gameState.scavengeAssigned; i++) {
-                    if (Math.random() < 0.2) medicalFound += 5;
+                    if (Math.random() < 0.3) medicalFound += 1.5;
                 }
                 
                 // New survivors joining the camp (scavengers find people)
@@ -1118,7 +1118,7 @@
         function useMolotov() {
             if (gameState.molotov > 0 && gameState.currentZombies > 0) {
                 gameState.molotov--;
-                const killed = Math.min(3, gameState.currentZombies);
+                const killed = Math.min(2, gameState.currentZombies);
                 gameState.currentZombies -= killed;
                 gameState.totalZombiesKilled += killed;
                 document.getElementById('molotovCombat').textContent = gameState.molotov;
@@ -1478,12 +1478,12 @@
                 { from: 'ammo', rate: '1:1', fromAmount: 1, toAmount: 1 }
             ],
             medical: [
-                { from: 'scrap', rate: '5:1', fromAmount: 5, toAmount: 1 },
-                { from: 'food', rate: '3:1', fromAmount: 3, toAmount: 1 },
-                { from: 'ammo', rate: '2:1', fromAmount: 2, toAmount: 1 }
+                { from: 'scrap', rate: '5:1', fromAmount: 10, toAmount: 1 },
+                { from: 'food', rate: '3:1', fromAmount: 5, toAmount: 1 },
+                { from: 'ammo', rate: '2:1', fromAmount: 4, toAmount: 1 }
             ],
             ammo: [
-                { from: 'scrap', rate: '3:1', fromAmount: 3, toAmount: 1 },
+                { from: 'scrap', rate: '3:1', fromAmount: 4, toAmount: 1 },
                 { from: 'food', rate: '2:1', fromAmount: 2, toAmount: 1 },
                 { from: 'medical', rate: '1:1', fromAmount: 1, toAmount: 1 }
             ]
@@ -1599,10 +1599,10 @@
     function showWelcomeModal() {
         const welcomeContent = `
             <p>Welcome to the Karaköy Survivor Camp, <strong>${gameState.playerName}</strong>.</p>
-            <p>Every morning, assign your ${gameState.availableSurvivors} healthy survivors to critical tasks. 
+            <p>Every morning, assign your healthy survivors to critical tasks. 
             Balance your resources wisely—scavengers gather supplies, researchers develop the cure, builders fortify walls, 
-            and healers tend to the sick and injured.</p>
-            <p><strong>Resources:</strong> Scrap (${gameState.scrap}), Food (${gameState.food}), Ammo (${gameState.ammo}), Medical (${gameState.medical})</p>
+            and healers heal the sick and injured.</p>
+            <p>As night falls, you will start to prepare for relentless zombie waves.
             <p>Plan carefully. Each decision affects your survival.</p>
         `;
         document.getElementById('welcomeContent').innerHTML = welcomeContent;
