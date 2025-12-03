@@ -519,11 +519,11 @@ button:disabled {
 }
 
 .cure-progress-animating {
-    animation: cureFlash 1.5s ease-in-out;
+    animation: cureFlash 3s ease-in-out;
 }
 
 .progress-fill.growing {
-    animation: cureProgressGrow 2s ease-out;
+    animation: cureProgressGrow 4s ease-out;
     transform-origin: left;
 }
 
@@ -534,7 +534,7 @@ button:disabled {
     font-weight: bold;
     color: #00ff41;
     text-shadow: 0 0 10px #00ff41;
-    animation: cureFlare 2s ease-out forwards;
+    animation: cureFlare 4s ease-out forwards;
 }
 
 /* Wall damage animation */

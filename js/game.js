@@ -948,7 +948,7 @@
                     progressBar.appendChild(flare);
                     
                     // Remove after animation completes
-                    setTimeout(() => flare.remove(), 2000);
+                    setTimeout(() => flare.remove(), 4000);
                 }
             }
         }
