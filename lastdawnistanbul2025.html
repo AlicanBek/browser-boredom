@@ -1683,12 +1683,12 @@
             gameState.dailyTradeUsed = 0;
             
             // Update prep info
-            const defenders = gameState.healthySurvivors + gameState.injuredSurvivors;
+            const defenders = gameState.healthySurvivors;
             const zombieCount = calculateZombieCount();
             
             document.getElementById('prepInfo').innerHTML = `
                 <p>Night ${gameState.day} approaching: ${zombieCount} zombies expected</p>
-                <p>Defenders ready: ${defenders} (${gameState.sickSurvivors} sick cannot fight)</p>
+                <p>Defenders ready: ${defenders} (${gameState.sickSurvivors} sick & injured cannot fight)</p>
                 <p>Current resources: Scrap: ${gameState.scrap} | Food: ${gameState.food} | Ammo: ${gameState.ammo} | Medical: ${gameState.medical}</p>
                 <p>Wall Integrity: ${Math.floor(gameState.wallHealth)}%</p>
             
@@ -1757,7 +1757,7 @@
             
             document.getElementById('prepInfo').innerHTML = `
                 <p>Night ${gameState.day} approaching: ${calculateZombieCount()} zombies expected</p>
-                <p>Defenders ready: ${gameState.healthySurvivors + gameState.injuredSurvivors} (${gameState.sickSurvivors} sick cannot fight)</p>
+                <p>Defenders ready: ${gameState.healthySurvivors + gameState.injuredSurvivors} (${gameState.sickSurvivors} sick & injured cannot fight)</p>
                 <p>Current resources: Scrap: ${gameState.scrap} | Food: ${gameState.food} | Ammo: ${gameState.ammo} | Medical: ${gameState.medical}</p>
             `;
         }
@@ -1768,7 +1768,7 @@
             setDailyPhase(3);  // Night phase
             
             gameState.currentZombies = calculateZombieCount();
-            gameState.defenders = gameState.healthySurvivors + gameState.injuredSurvivors;
+            gameState.defenders = gameState.healthySurvivors;
             gameState.combatActive = true;
             gameState.deadSurvivors = [];
             gameState.combatStartZombieCount = gameState.currentZombies;  // Track initial zombie count
