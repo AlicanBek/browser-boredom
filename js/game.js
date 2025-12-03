@@ -127,6 +127,7 @@
             combat: {
                 currentZombies: 0,
                 defenders: 0,
+                nightZombiesKilled: 0,  // Per-night counter for display
                 weaponCooldowns: {
                     molotov: 0,  // timestamp when weapon will be ready
                     grenade: 0   // timestamp when weapon will be ready
@@ -417,8 +418,8 @@
             const phases = ['Morning', 'Evening', 'Prep', 'Night', 'Summary'];
             const currentPhase = gameState.currentPhase;
             
-            // Update phase text
-            document.getElementById('phaseText').textContent = phases[currentPhase];
+            // Update phase text with day number
+            document.getElementById('phaseText').textContent = `DAY ${gameState.day} - ${phases[currentPhase]}`;
             
             // Update dots
             for (let i = 0; i < 5; i++) {
@@ -1089,6 +1090,7 @@
             gameState.combatActive = true;
             gameState.deadSurvivors = [];
             gameState.combatStartZombieCount = gameState.currentZombies;  // Track initial zombie count
+            gameState.combat.nightZombiesKilled = 0;  // Reset per-night counter
             gameState.combat.weaponCooldowns.molotov = 0;
             gameState.combat.weaponCooldowns.grenade = 0;
             
@@ -1106,8 +1108,9 @@
             document.getElementById('surgeCombat').textContent = gameState.surgeBlast;
             updateWeaponCooldownDisplay();
             
-            // Clear combat log
-            document.getElementById('combatLog').innerHTML = '';
+            // Clear combat log - ensure it's completely empty
+            const combatLog = document.getElementById('combatLog');
+            combatLog.innerHTML = '';
             
             // Start combat simulation
             addCombatMessage(`Night ${gameState.day} - ${gameState.currentZombies} zombies approaching!`);
@@ -1146,12 +1149,14 @@
                     gameState.currentZombies -= killRate;
                     gameState.ammo -= ammoNeeded;
                     gameState.totalZombiesKilled += killRate;
+                    gameState.combat.nightZombiesKilled += killRate;
                     addCombatMessage(`Defenders killed ${killRate} zombies!`);
                 } else {
                     // Partial kills with remaining ammo
                     const possibleKills = Math.floor(gameState.ammo / 3);
                     gameState.currentZombies -= possibleKills;
                     gameState.totalZombiesKilled += possibleKills;
+                    gameState.combat.nightZombiesKilled += possibleKills;
                     gameState.ammo = 0;
                     if (possibleKills > 0) {
                         addCombatMessage(`Defenders killed ${possibleKills} zombies! Out of ammo!`);
@@ -1179,7 +1184,7 @@
             
             // Update display
             document.getElementById('zombiesRemaining').textContent = gameState.currentZombies;
-            document.getElementById('zombiesKilled').textContent = gameState.totalZombiesKilled;
+            document.getElementById('zombiesKilled').textContent = gameState.combat.nightZombiesKilled;
             document.getElementById('survivorsRemaining').textContent = gameState.defenders;
             document.getElementById('ammoRemaining').textContent = gameState.ammo;
             document.getElementById('wallPercent').textContent = Math.floor(gameState.wallHealth);
@@ -1350,9 +1355,10 @@
                 const killed = Math.min(GAME_CONSTANTS.MOLOTOV_KILL_RATE, gameState.currentZombies);
                 gameState.currentZombies -= killed;
                 gameState.totalZombiesKilled += killed;
+                gameState.combat.nightZombiesKilled += killed;
                 document.getElementById('molotovCombat').textContent = gameState.molotov;
                 document.getElementById('zombiesRemaining').textContent = gameState.currentZombies;
-                document.getElementById('zombiesKilled').textContent = gameState.totalZombiesKilled;
+                document.getElementById('zombiesKilled').textContent = gameState.combat.nightZombiesKilled;
                 addCombatMessage(`Molotov thrown! ${killed} zombies eliminated!`);
                 updateWeaponCooldownDisplay();
                 
@@ -1375,9 +1381,10 @@
                 const killed = Math.min(GAME_CONSTANTS.GRENADE_KILL_RATE, gameState.currentZombies);
                 gameState.currentZombies -= killed;
                 gameState.totalZombiesKilled += killed;
+                gameState.combat.nightZombiesKilled += killed;
                 document.getElementById('grenadeCombat').textContent = gameState.grenade;
                 document.getElementById('zombiesRemaining').textContent = gameState.currentZombies;
-                document.getElementById('zombiesKilled').textContent = gameState.totalZombiesKilled;
+                document.getElementById('zombiesKilled').textContent = gameState.combat.nightZombiesKilled;
                 addCombatMessage(`Grenade exploded! ${killed} zombies destroyed!`);
                 updateWeaponCooldownDisplay();
                 
@@ -1392,10 +1399,11 @@
                 gameState.surgeBlast--;
                 const killed = gameState.currentZombies;
                 gameState.totalZombiesKilled += killed;
+                gameState.combat.nightZombiesKilled += killed;
                 gameState.currentZombies = 0;
                 document.getElementById('surgeCombat').textContent = gameState.surgeBlast;
                 document.getElementById('zombiesRemaining').textContent = gameState.currentZombies;
-                document.getElementById('zombiesKilled').textContent = gameState.totalZombiesKilled;
+                document.getElementById('zombiesKilled').textContent = gameState.combat.nightZombiesKilled;
                 addCombatMessage(`SURGE BLAST ACTIVATED! All ${killed} zombies vaporized!`);
                 addCombatMessage(`The explosion will attract more zombies tomorrow...`, 'warning');
                 gameState.doubleTomorrowWave = true;
