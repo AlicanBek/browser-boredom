@@ -889,6 +889,31 @@
             document.getElementById('popupOverlay').classList.add('active');
         }
         
+        function updateCraftButtonStates() {
+            const grenadeBtn = document.getElementById('craftGrenadeBtn');
+            const reviveBtn = document.getElementById('craftReviveBtn');
+            
+            if (!gameState.grenadeUnlocked) {
+                grenadeBtn.disabled = true;
+                grenadeBtn.textContent = 'GRENADE LOCKED\n(Unlock at Trading Post)';
+                grenadeBtn.style.opacity = '0.5';
+            } else {
+                grenadeBtn.disabled = false;
+                grenadeBtn.innerHTML = 'CRAFT GRENADE<br>(25 scrap + 5 medical)';
+                grenadeBtn.style.opacity = '1';
+            }
+            
+            if (!gameState.reviveKitUnlocked) {
+                reviveBtn.disabled = true;
+                reviveBtn.textContent = 'REVIVE KIT LOCKED\n(Unlock at Hospital)';
+                reviveBtn.style.opacity = '0.5';
+            } else {
+                reviveBtn.disabled = false;
+                reviveBtn.innerHTML = 'CRAFT REVIVE KIT<br>(15 medical)';
+                reviveBtn.style.opacity = '1';
+            }
+        }
+        
         function goToCombatPrep() {
             document.getElementById('eveningScreen').classList.remove('active');
             document.getElementById('combatPrepScreen').classList.add('active');
@@ -914,6 +939,9 @@
             document.getElementById('grenadeCount').textContent = gameState.grenade;
             document.getElementById('nukeCount').textContent = gameState.surgeBlast;
             document.getElementById('reviveCount').textContent = gameState.reviveKit;
+            
+            // Update craft button unlock states
+            updateCraftButtonStates();
         }
         
         function calculateZombieCount() {
@@ -1154,10 +1182,12 @@
             const molotovBtn = document.getElementById('molotovButton');
             const grenadeBtn = document.getElementById('grenadeButton');
             
-            const molotovTimeRemaining = Math.max(0, Math.ceil((gameState.combat.weaponCooldowns.molotov - now) / 1000));
-            const grenadeTimeRemaining = Math.max(0, Math.ceil((gameState.combat.weaponCooldowns.grenade - now) / 1000));
+            // Check if cooldown is 0 (not started) or in the past (ready)
+            const molotovReady = gameState.combat.weaponCooldowns.molotov === 0 || gameState.combat.weaponCooldowns.molotov <= now;
+            const grenadeReady = gameState.combat.weaponCooldowns.grenade === 0 || gameState.combat.weaponCooldowns.grenade <= now;
             
-            if (molotovTimeRemaining > 0) {
+            if (!molotovReady) {
+                const molotovTimeRemaining = Math.ceil((gameState.combat.weaponCooldowns.molotov - now) / 1000);
                 molotovBtn.disabled = true;
                 molotovBtn.textContent = `USE MOLOTOV - Ready in ${molotovTimeRemaining}s`;
             } else {
@@ -1165,7 +1195,8 @@
                 molotovBtn.innerHTML = `USE MOLOTOV (<span id="molotovCombat">${gameState.molotov}</span>)`;
             }
             
-            if (grenadeTimeRemaining > 0) {
+            if (!grenadeReady) {
+                const grenadeTimeRemaining = Math.ceil((gameState.combat.weaponCooldowns.grenade - now) / 1000);
                 grenadeBtn.disabled = true;
                 grenadeBtn.textContent = `USE GRENADE - Ready in ${grenadeTimeRemaining}s`;
             } else {
