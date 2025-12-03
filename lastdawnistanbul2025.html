@@ -818,9 +818,9 @@
         // These values define game balance and should not change during gameplay
         const GAME_CONSTANTS = {
             // Starting resources (Day 1)
-            STARTING_FOOD: 15,
+            STARTING_FOOD: 10,
             STARTING_SCRAP: 25,
-            STARTING_AMMO: 25,
+            STARTING_AMMO: 10,
             STARTING_MEDICAL: 10,
             
             // Starting survivors
@@ -851,7 +851,7 @@
             REVIVE_KIT_COST: { medical: 10, food: 5 },
             
             // Combat effectiveness
-            MOLOTOV_KILL_RATE: 4,
+            MOLOTOV_KILL_RATE: 2,
             GRENADE_KILL_RATE: 6,
             SURGE_BLAST_KILL_RATE: 10,
             AUTO_DEFENSE_KILL_RATE: 1,
@@ -859,13 +859,13 @@
             // Resource generation per assignment
             SCAVENGE_POINTS_GAIN: 3,
             SCAVENGE_RESOURCE_RATES: {
-                scrap: 3,
+                scrap: 20,
                 food: 2,
                 ammo: 1,
-                medical: 0.5
+                medical: 1.5
             },
-            RESEARCH_CURE_PER_SURVIVOR: 5,
-            BUILDING_WALL_REPAIR: 5,
+            RESEARCH_CURE_PER_SURVIVOR: 1,
+            BUILDING_WALL_REPAIR: 6,
             REST_HEALTH_RECOVERY: 2,
             
             // Milestone thresholds
@@ -1433,7 +1433,7 @@
             
             // Process research
             if (gameState.researchAssigned > 0 && gameState.immuneSurvivorFound) {
-                const researchPoints = gameState.researchAssigned * (gameState.labEquipmentFound ? 4 : 2);
+                const researchPoints = gameState.researchAssigned * (gameState.labEquipmentFound ? 3 : 1);
                 gameState.cureProgress += researchPoints;
                 report += `<p><strong>Research:</strong> +${researchPoints} cure points (${gameState.cureProgress}/100)</p>`;
             } else if (gameState.researchAssigned > 0 && !gameState.immuneSurvivorFound) {
@@ -1760,8 +1760,9 @@
             
             document.getElementById('prepInfo').innerHTML = `
                 <p>Night ${gameState.day} approaching: ${calculateZombieCount()} zombies expected</p>
-                <p>Defenders ready: ${gameState.healthySurvivors + gameState.injuredSurvivors} (${gameState.sickSurvivors} sick or injured cannot fight)</p>
+                <p>Defenders ready: ${gameState.healthySurvivors} (${gameState.sickSurvivors} sick or injured cannot fight)</p>
                 <p>Current resources: Scrap: ${gameState.scrap} | Food: ${gameState.food} | Ammo: ${gameState.ammo} | Medical: ${gameState.medical}</p>
+                <p>Wall Integrity: ${Math.floor(gameState.wallHealth)}%</p>
             `;
         }
         
