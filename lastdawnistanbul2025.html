@@ -242,7 +242,7 @@
         
         .progress-fill {
             height: 100%;
-            background: linear-gradient(to right, #00cc33, #00ff41);
+            background: radial-gradient(right at 30% 50%, #ffffff, #6666ff 40%, #6600cc);
             transition: width 0.5s;
             display: flex;
             align-items: center;
@@ -611,13 +611,15 @@
                     </div>
                 </div>
                 <div id="healingAssignment" class="survivor-assignment">
-                    <span>Healing (Heal injured and sick survivors)</span>
+                    <div style="width: 100%;">
+                        <div>Healing (Heal injured and sick survivors)</div>
+                        <div id="healingStatus" style="font-size: 0.8em; color: #00cc33; margin-top: 3px;"></div>
+                    </div>
                     <div class="assignment-controls">
                         <button id="healingMinusBtn" onclick="adjustAssignment('healing', -1)">−</button>
                         <span class="assignment-value" id="healingValue">0</span>
                         <button id="healingPlusBtn" onclick="adjustAssignment('healing', 1)">+</button>
                     </div>
-                    <div id="healingStatus" style="color: #00FF00; text-align: center; font-size: 0.85em; margin-top: 4px; display: none;"></div>
                 </div>
                 
                 <div style="margin: 8px 0; text-align: center; font-size: 0.9em;">
@@ -1280,11 +1282,10 @@
                 document.getElementById('healingMinusBtn').disabled = true;
                 document.getElementById('healingPlusBtn').disabled = true;
                 document.getElementById('healingStatus').textContent = 'No injured or sick survivors';
-                document.getElementById('healingStatus').style.display = 'block';
             } else {
                 document.getElementById('healingMinusBtn').disabled = false;
                 document.getElementById('healingPlusBtn').disabled = false;
-                document.getElementById('healingStatus').style.display = 'none';
+                document.getElementById('healingStatus').textContent = '';
             }
             
             // Update day title
