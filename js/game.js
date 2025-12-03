@@ -916,6 +916,70 @@
             }
         }
         
+        function animateCureProgress(points) {
+            const cureText = document.getElementById('cureText');
+            const cureProgress = document.getElementById('cureProgress');
+            const progressBar = cureProgress ? cureProgress.parentElement : null;
+            
+            // Flash animation on cure text
+            if (cureText) {
+                cureText.classList.remove('cure-progress-animating');
+                // Trigger reflow to allow animation restart
+                void cureText.offsetWidth;
+                cureText.classList.add('cure-progress-animating');
+            }
+            
+            // Grow animation on progress bar
+            if (cureProgress) {
+                cureProgress.classList.remove('growing');
+                void cureProgress.offsetWidth;
+                cureProgress.classList.add('growing');
+            }
+            
+            // Create flares near the progress bar
+            if (progressBar) {
+                for (let i = 0; i < 3; i++) {
+                    const flare = document.createElement('div');
+                    flare.className = 'cure-flare';
+                    flare.textContent = '+' + Math.floor(points / 3);
+                    flare.style.left = (Math.random() * 60 + 20) + '%';
+                    flare.style.top = '0';
+                    flare.style.position = 'relative';
+                    progressBar.appendChild(flare);
+                    
+                    // Remove after animation completes
+                    setTimeout(() => flare.remove(), 2000);
+                }
+            }
+        }
+        
+        function animateWallDamage() {
+            const wallHealthDiv = document.querySelector('.wall-health');
+            const wallHealthBar = document.getElementById('wallHealthBar');
+            
+            if (wallHealthDiv) {
+                wallHealthDiv.classList.remove('wall-taking-damage');
+                void wallHealthDiv.offsetWidth;
+                wallHealthDiv.classList.add('wall-taking-damage');
+            }
+            
+            // Create damage flares
+            if (wallHealthDiv) {
+                for (let i = 0; i < 2; i++) {
+                    const flare = document.createElement('div');
+                    flare.className = 'wall-damage-flare';
+                    flare.textContent = 'HIT';
+                    flare.style.left = (Math.random() * 80 + 10) + '%';
+                    flare.style.top = '50%';
+                    flare.style.position = 'absolute';
+                    wallHealthDiv.style.position = 'relative';
+                    wallHealthDiv.appendChild(flare);
+                    
+                    setTimeout(() => flare.remove(), 1500);
+                }
+            }
+        }
+        
         function goToCombatPrep() {
             document.getElementById('eveningScreen').classList.remove('active');
             document.getElementById('combatPrepScreen').classList.add('active');
