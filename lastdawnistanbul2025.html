@@ -593,22 +593,25 @@
                         <div>Research (Work on cure)</div>
                         <div id="researchStatus" style="font-size: 0.8em; color: #ffff00; margin-top: 3px;">Awaiting immune survivor...</div>
                     </div>
-                    <div class="assignment-controls" id="researchControls" style="display: none;">
-                        <button onclick="adjustAssignment('research', -1)">−</button>
+                    <div class="assignment-controls" id="researchControls">
+                        <button onclick="adjustAssignment('research', -1)" id="researchMinusBtn" disabled>−</button>
                         <span class="assignment-value" id="researchValue">0</span>
-                        <button onclick="adjustAssignment('research', 1)">+</button>
+                        <button onclick="adjustAssignment('research', 1)" id="researchPlusBtn" disabled>+</button>
                     </div>
                 </div>
-                <div class="survivor-assignment">
-                    <span>Building (Fortify walls)</span>
+                <div class="survivor-assignment" id="buildingAssignment">
+                    <div style="width: 100%;">
+                        <div>Building (Fortify walls)</div>
+                        <div id="buildingStatus" style="font-size: 0.8em; color: #00cc33; margin-top: 3px;"></div>
+                    </div>
                     <div class="assignment-controls">
-                        <button onclick="adjustAssignment('building', -1)">−</button>
+                        <button onclick="adjustAssignment('building', -1)" id="buildingMinusBtn">−</button>
                         <span class="assignment-value" id="buildingValue">0</span>
-                        <button onclick="adjustAssignment('building', 1)">+</button>
+                        <button onclick="adjustAssignment('building', 1)" id="buildingPlusBtn">+</button>
                     </div>
                 </div>
                 <div class="survivor-assignment">
-                    <span>Healing (Heal injuries)</span>
+                    <span>Healing (Heal injured and sick survivors)</span>
                     <div class="assignment-controls">
                         <button onclick="adjustAssignment('healing', -1)">−</button>
                         <span class="assignment-value" id="healingValue">0</span>
@@ -1250,11 +1253,25 @@
             
             // Update research assignment availability
             if (gameState.immuneSurvivorFound) {
-                document.getElementById('researchControls').style.display = 'flex';
+                document.getElementById('researchMinusBtn').disabled = false;
+                document.getElementById('researchPlusBtn').disabled = false;
                 document.getElementById('researchStatus').style.display = 'none';
             } else {
-                document.getElementById('researchControls').style.display = 'none';
+                document.getElementById('researchMinusBtn').disabled = true;
+                document.getElementById('researchPlusBtn').disabled = true;
                 document.getElementById('researchStatus').style.display = 'block';
+            }
+            
+            // Update building assignment availability
+            if (gameState.wallHealth >= 100) {
+                document.getElementById('buildingMinusBtn').disabled = true;
+                document.getElementById('buildingPlusBtn').disabled = true;
+                document.getElementById('buildingStatus').textContent = 'Wall is fully repaired';
+                document.getElementById('buildingStatus').style.display = 'block';
+            } else {
+                document.getElementById('buildingMinusBtn').disabled = false;
+                document.getElementById('buildingPlusBtn').disabled = false;
+                document.getElementById('buildingStatus').style.display = 'none';
             }
             
             // Update day title
@@ -1299,6 +1316,12 @@
             // Prevent research assignment until immune survivor is found
             if (type === 'research' && !gameState.immuneSurvivorFound) {
                 alert('Cannot assign research until immune survivor is found');
+                return;
+            }
+            
+            // Prevent building assignment when wall is at 100%
+            if (type === 'building' && gameState.wallHealth >= 100) {
+                alert('Wall is fully repaired');
                 return;
             }
             
@@ -1402,19 +1425,41 @@
                 report += `<p><strong>Building:</strong> Wall repaired ${oldWall}% → ${gameState.wallHealth}%</p>`;
             }
             
-            // Process healing (heal injured)
-            if (gameState.healingAssigned > 0 && gameState.injuredSurvivors > 0) {
-                const healed = Math.min(gameState.healingAssigned, gameState.injuredSurvivors);
+            // Process healing (heal injured and sick)
+            if (gameState.healingAssigned > 0 && (gameState.injuredSurvivors > 0 || gameState.sickSurvivors > 0)) {
                 let healedCount = 0;
+                let curedCount = 0;
+                
+                // First heal injured survivors
                 for (let survivor of gameState.survivors.list) {
-                    if (survivor.status === 'injured' && healedCount < healed) {
+                    if (survivor.status === 'injured' && healedCount < gameState.healingAssigned) {
                         survivor.status = 'healthy';
                         healedCount++;
                     }
                 }
-                gameState.injuredSurvivors -= healed;
-                gameState.healthySurvivors += healed;
-                report += `<p><strong>Healing:</strong> ${healed} injured survivors healed</p>`;
+                
+                // Then cure sick survivors with remaining healers
+                const remainingHealers = gameState.healingAssigned - healedCount;
+                for (let survivor of gameState.survivors.list) {
+                    if (survivor.status === 'sick' && curedCount < remainingHealers) {
+                        survivor.status = 'healthy';
+                        curedCount++;
+                    }
+                }
+                
+                gameState.injuredSurvivors -= healedCount;
+                gameState.healthySurvivors += healedCount;
+                gameState.sickSurvivors -= curedCount;
+                gameState.healthySurvivors += curedCount;
+                
+                let healingReport = `<p><strong>Healing:</strong>`;
+                if (healedCount > 0) healingReport += ` ${healedCount} injured healed`;
+                if (curedCount > 0) {
+                    if (healedCount > 0) healingReport += `,`;
+                    healingReport += ` ${curedCount} sick cured`;
+                }
+                healingReport += `</p>`;
+                report += healingReport;
             }
             
             // Food consumption
